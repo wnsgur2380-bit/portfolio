@@ -279,7 +279,9 @@
         // 로그인 상태 확인
         function checkLoginStatus() {
             console.log('checkLoginStatus called');
-            fetch('/api/status')
+            fetch('/api/status', {
+                credentials: 'include'  // 쿠키를 함께 전송
+            })
                 .then(response => {
                     if (!response.ok) throw new Error('Failed to fetch status');
                     return response.json();
