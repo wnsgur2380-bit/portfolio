@@ -4,9 +4,20 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql2/promise');
 const path = require('path');
 const bcrypt = require('bcrypt');
+const http = require('http');
+const WebSocket = require('ws');
 
 const app = express();
 const PORT = 3000;
+
+// HTTP 서버 생성
+const server = http.createServer(app);
+
+// WebSocket 서버 생성
+const wss = new WebSocket.Server({ server });
+
+// 접속한 채팅 클라이언트 저장
+const chatClients = new Map();
 
 // Database connection pool
 const pool = mysql.createPool({
@@ -767,7 +778,106 @@ app.delete('/api/admin/comments/:id', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+// WebSocket 핸들러 - 채팅
+wss.on('connection', (ws) => {
+    const clientId = Date.now().toString();
+    const clientInfo = {
+        ws: ws,
+        nickname: null,
+        id: clientId
+    };
+
+    // 새 클라이언트 정보 저장
+    chatClients.set(clientId, clientInfo);
+    console.log(`[채팅] 클라이언트 연결: ${clientId}`);
+
+    // 메시지 수신
+    ws.on('message', (msg) => {
+        try {
+            const data = JSON.parse(msg);
+
+            // 닉네임 설정
+            if (data.type === 'nickname') {
+                clientInfo.nickname = data.nickname;
+                console.log(`[채팅] 닉네임 설정: ${clientId}: ${data.nickname}`);
+
+                // 모든 클라이언트에게 사용자 수 전송
+                broadcastUserCount();
+
+                // 입장 메시지 브로드캐스트
+                broadcast({
+                    type: 'userJoined',
+                    nickname: data.nickname
+                }, clientId);
+            }
+            // 일반 메시지
+            else if (data.type === 'message') {
+                console.log(`[채팅] 메시지: ${data.nickname}: ${data.message}`);
+
+                // 모든 클라이언트에게 메시지 전송
+                chatClients.forEach((client, id) => {
+                    if (client.ws && client.ws.readyState === WebSocket.OPEN) {
+                        client.ws.send(JSON.stringify({
+                            type: 'message',
+                            nickname: data.nickname,
+                            message: data.message,
+                            isMe: id === clientId
+                        }));
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('[채팅] 메시지 처리 오류:', error);
+        }
+    });
+
+    // 연결 종료
+    ws.on('close', () => {
+        const nickname = clientInfo.nickname;
+        chatClients.delete(clientId);
+        console.log(`[채팅] 클라이언트 종료: ${clientId}: ${nickname}`);
+
+        if (nickname) {
+            // 퇴장 메시지 브로드캐스트
+            broadcast({
+                type: 'userLeft',
+                nickname: nickname
+            });
+
+            // 모든 클라이언트에게 사용자 수 전송
+            broadcastUserCount();
+        }
+    });
+
+    // 에러 처리
+    ws.on('error', (error) => {
+        console.error(`[채팅] WebSocket 에러 ${clientId}:`, error);
+    });
+});
+
+// 모든 클라이언트에게 사용자 수 전송
+function broadcastUserCount() {
+    const count = chatClients.size;
+    chatClients.forEach((client) => {
+        if (client.ws && client.ws.readyState === WebSocket.OPEN) {
+            client.ws.send(JSON.stringify({
+                type: 'userCount',
+                count: count
+            }));
+        }
+    });
+}
+
+// 특정 클라이언트를 제외한 모든 클라이언트에게 메시지 전송
+function broadcast(message, excludeId = null) {
+    chatClients.forEach((client, id) => {
+        if (client.ws && client.ws.readyState === WebSocket.OPEN && id !== excludeId) {
+            client.ws.send(JSON.stringify(message));
+        }
+    });
+}
+
+server.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
 
