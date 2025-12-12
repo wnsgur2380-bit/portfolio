@@ -280,6 +280,13 @@
                 const signupItem = document.getElementById('signupItem');
                 const authDropdown = document.getElementById('authDropdown');
                 
+                // null 체크 추가
+                if (!loginItem || !signupItem || !authDropdown) {
+                    console.warn('Navigation elements not found, retrying...');
+                    setTimeout(checkLoginStatus, 500);
+                    return;
+                }
+                
                 if (data.isLoggedIn) {
                     loginItem.style.display = 'none';
                     signupItem.style.display = 'none';
@@ -290,7 +297,10 @@
                         const userRes = await fetch('/api/user-info');
                         if (userRes.ok) {
                             const user = await userRes.json();
-                            document.getElementById('dropdownName').textContent = user.full_name || user.username;
+                            const dropdownName = document.getElementById('dropdownName');
+                            if (dropdownName) {
+                                dropdownName.textContent = user.full_name || user.username;
+                            }
                         }
                     } catch (error) {
                         console.error('Failed to load user info:', error);
@@ -324,8 +334,14 @@
                 .catch(err => console.error('Logout failed:', err));
         }
 
-        // 페이지 로드 시 로그인 상태 확인
-        checkLoginStatus();
+        // 페이지 로드 시 로그인 상태 확인 (충분한 지연 추가)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(checkLoginStatus, 500);
+            });
+        } else {
+            setTimeout(checkLoginStatus, 500);
+        }
     </script>
 
     <script>
