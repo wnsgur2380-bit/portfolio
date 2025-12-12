@@ -445,6 +445,7 @@ body {
 
 .portfolio-tags {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
 }
 
@@ -454,6 +455,7 @@ body {
     border-radius: 20px;
     font-size: 12px;
     color: var(--secondary-color);
+    white-space: nowrap;
 }
 
 /* Career Section */
