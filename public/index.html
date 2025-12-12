@@ -270,6 +270,9 @@
             }
         });
 
+        let loginStatusCheckAttempts = 0;
+        const MAX_ATTEMPTS = 20;  // 최대 10초 (500ms * 20회) 재시도
+
         // 로그인 상태 확인
         async function checkLoginStatus() {
             try {
@@ -282,8 +285,13 @@
                 
                 // null 체크 추가
                 if (!loginItem || !signupItem || !authDropdown) {
-                    console.warn('Navigation elements not found, retrying...');
-                    setTimeout(checkLoginStatus, 500);
+                    loginStatusCheckAttempts++;
+                    if (loginStatusCheckAttempts < MAX_ATTEMPTS) {
+                        console.warn('Navigation elements not found, retrying... (' + loginStatusCheckAttempts + '/' + MAX_ATTEMPTS + ')');
+                        setTimeout(checkLoginStatus, 500);
+                    } else {
+                        console.error('Navigation elements not found after max retries. navbar-loader may have failed.');
+                    }
                     return;
                 }
                 
@@ -334,13 +342,13 @@
                 .catch(err => console.error('Logout failed:', err));
         }
 
-        // 페이지 로드 시 로그인 상태 확인 (충분한 지연 추가)
+        // 페이지 로드 시 로그인 상태 확인 (navbar-loader가 완료될 때까지 대기)
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(checkLoginStatus, 500);
+                setTimeout(checkLoginStatus, 2000);  // 2초 대기
             });
         } else {
-            setTimeout(checkLoginStatus, 500);
+            setTimeout(checkLoginStatus, 2000);  // 2초 대기
         }
     </script>
 
