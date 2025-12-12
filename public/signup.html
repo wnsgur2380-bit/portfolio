@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/navbar-loader.js?v=3.0"></script>
+    <style>
+        .signup-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            padding: 20px;
+        }
+
+        .signup-container {
+            background-color: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 50px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .signup-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .signup-header h1 {
+            font-size: 28px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .signup-header p {
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--primary-color);
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: var(--secondary-color);
+        }
+
+        .password-requirements {
+            background-color: rgba(0, 212, 255, 0.1);
+            border-left: 3px solid var(--accent-color);
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--secondary-color);
+        }
+
+        .password-requirements li {
+            margin-bottom: 6px;
+        }
+
+        .password-requirements .check {
+            color: var(--accent-color);
+        }
+
+        .password-requirements .uncheck {
+            color: #ff4444;
+        }
+
+        .signup-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--accent-color) 0%, #00a8cc 100%);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .signup-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .signup-button:active {
+            transform: translateY(0);
+        }
+
+        .signup-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .form-footer p {
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+
+        .form-footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .form-footer a:hover {
+            color: var(--primary-color);
+        }
+
+        .error-message {
+            background-color: rgba(255, 68, 68, 0.1);
+            border-left: 3px solid #ff4444;
+            color: #ff4444;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background-color: rgba(0, 212, 255, 0.1);
+            border-left: 3px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s ease;
+        }
+
+        .back-link a:hover {
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            .signup-container {
+                padding: 30px 20px;
+            }
+
+            .signup-header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="signup-section">
+        <div class="signup-container">
+            <div class="signup-header">
+                <h1>회원가입</h1>
+                <p>새로운 계정을 생성하세요</p>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="username">ID</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="3글자 이상의 ID"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="6글자 이상의 비밀번호"
+                        required
+                    >
+                    <div class="password-requirements">
+                        <ul style="margin: 0; padding-left: 20px;">
+                            <li>
+                                <span id="lengthCheck" class="uncheck">✓</span>
+                                6글자 이상
+                            </li>
+                            <li>
+                                <span id="matchCheck" class="uncheck">✓</span>
+                                비밀번호 확인과 일치
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">비밀번호 확인</label>
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirmPassword" 
+                        placeholder="비밀번호 재입력"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="fullName">이름</label>
+                    <input 
+                        type="text" 
+                        id="fullName" 
+                        name="fullName" 
+                        placeholder="홍길동"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="signup-button" id="signupBtn">
+                    회원가입
+                </button>
+            </form>
+
+            <div class="form-footer">
+                <p>이미 계정이 있으신가요?</p>
+                <a href="/login">로그인하기</a>
+            </div>
+
+            <div class="back-link">
+                <a href="/">← 홈으로 돌아가기</a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const form = document.getElementById('signupForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const lengthCheck = document.getElementById('lengthCheck');
+        const matchCheck = document.getElementById('matchCheck');
+        const signupBtn = document.getElementById('signupBtn');
+
+        // 한글을 영어로 변환하는 함수
+        const koreanToEnglish = {
+            'ㄱ': 'r', 'ㄲ': 'R', 'ㄴ': 's', 'ㄷ': 'e', 'ㄸ': 'E', 'ㄹ': 'f', 'ㄺ': 'F',
+            'ㄻ': 'a', 'ㄼ': 'q', 'ㄽ': 't', 'ㄾ': 'T', 'ㄿ': 'd', 'ㅀ': 'w', 'ㅁ': 'z',
+            'ㅂ': 'x', 'ㅃ': 'X', 'ㅄ': 'c', 'ㅅ': 'c', 'ㅆ': 'C', 'ㅇ': 'v', 'ㅈ': 'g',
+            'ㅉ': 'G', 'ㅊ': 'k', 'ㅋ': 'k', 'ㅌ': 'i', 'ㅍ': 'i', 'ㅎ': 'o',
+            'ㅏ': 'k', 'ㅑ': 'i', 'ㅓ': 'j', 'ㅕ': 'u', 'ㅗ': 'p', 'ㅛ': 'h',
+            'ㅜ': 'hk', 'ㅝ': 'hu', 'ㅞ': 'hl', 'ㅟ': 'y', 'ㅢ': 'n', 'ㅣ': 'l',
+            'ㅤ': ' ', 'ㅥ': 'o', 'ㅦ': 'p', 'ㅧ': 'pp', 'ㅨ': 'psy', 'ㅩ': 'pt',
+            'ㅪ': 'ph', 'ㅫ': 'py', 'ㅬ': 'pl', 'ㅭ': 'pm'
+        };
+
+        function convertKoreanToEnglish(text) {
+            let result = '';
+            for (let char of text) {
+                // 한글 자모 확인
+                const code = char.charCodeAt(0);
+                if (code >= 0xAC00 && code <= 0xD7A3) {
+                    // 완성된 한글 자모
+                    const consonants = ['r', 'R', 's', 'e', 'E', 'f', 'F', 'a', 'q', 't', 'T', 'd', 'w', 'z',
+                                       'x', 'X', 'c', 'c', 'C', 'v', 'g', 'G', 'k', 'k', 'i', 'i', 'o'];
+                    const vowels = ['k', 'i', 'j', 'u', 'p', 'h', 'hk', 'hu', 'hl', 'y', 'n', 'l'];
+                    
+                    const choseong = Math.floor((code - 0xAC00) / 588);
+                    const jungseong = Math.floor(((code - 0xAC00) % 588) / 28);
+                    
+                    result += consonants[choseong] || '';
+                    result += vowels[jungseong] || '';
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        // 비밀번호 입력 시 한글을 영어로 변환
+        passwordInput.addEventListener('input', (e) => {
+            let value = e.target.value;
+            let converted = convertKoreanToEnglish(value);
+            
+            if (value !== converted) {
+                e.target.value = converted;
+            }
+            
+            validatePassword();
+        });
+
+        confirmPasswordInput.addEventListener('input', (e) => {
+            let value = e.target.value;
+            let converted = convertKoreanToEnglish(value);
+            
+            if (value !== converted) {
+                e.target.value = converted;
+            }
+            
+            validatePassword();
+        });
+
+        // Password validation
+        function validatePassword() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            // Check length
+            const isLengthValid = password.length >= 6;
+            if (isLengthValid) {
+                lengthCheck.textContent = '✓';
+                lengthCheck.classList.remove('uncheck');
+                lengthCheck.classList.add('check');
+            } else {
+                lengthCheck.textContent = '✕';
+                lengthCheck.classList.add('uncheck');
+                lengthCheck.classList.remove('check');
+            }
+
+            // Check match
+            const isMatch = password === confirmPassword && password.length > 0;
+            if (isMatch) {
+                matchCheck.textContent = '✓';
+                matchCheck.classList.remove('uncheck');
+                matchCheck.classList.add('check');
+            } else {
+                matchCheck.textContent = '✕';
+                matchCheck.classList.add('uncheck');
+                matchCheck.classList.remove('check');
+            }
+
+            // Enable/disable submit button
+            signupBtn.disabled = !(isLengthValid && isMatch);
+        }
+
+        // Form submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            const fullName = document.getElementById('fullName').value;
+
+            // Reset messages
+            errorMessage.classList.remove('show');
+            successMessage.classList.remove('show');
+
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password,
+                        confirmPassword,
+                        fullName
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorMessage.textContent = data.error || '회원가입 실패';
+                    errorMessage.classList.add('show');
+                } else {
+                    successMessage.textContent = '회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.';
+                    successMessage.classList.add('show');
+                    
+                    // Redirect to login after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                errorMessage.textContent = '회원가입 중 오류가 발생했습니다.';
+                errorMessage.classList.add('show');
+            }
+        });
+
+        // Initialize button state
+        validatePassword();
+    </script>
+</body>
+</html>

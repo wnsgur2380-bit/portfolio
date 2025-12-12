@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navbar 테스트 페이지</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="/navbar-loader.js?v=3.0"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 100px 20px;
+            background: #0d0d0d;
+            color: #fff;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+        }
+        .test-section h2 {
+            color: #00d4ff;
+            margin-top: 0;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            background: #0d0d0d;
+            border-left: 3px solid #00d4ff;
+            border-radius: 5px;
+        }
+        .pass {
+            border-left-color: #00ff00;
+        }
+        .fail {
+            border-left-color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Navbar 통합 테스트</h1>
+        
+        <div class="test-section">
+            <h2>1. Navbar 요소 존재 확인</h2>
+            <div id="test1" class="test-result">로딩 중...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. 로그인 상태 확인</h2>
+            <div id="test2" class="test-result">로딩 중...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. 함수 정의 확인</h2>
+            <div id="test3" class="test-result">로딩 중...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. 드롭다운 토글 테스트</h2>
+            <div id="test4" class="test-result">로딩 중...</div>
+            <button onclick="testDropdown()" style="padding: 10px 20px; background: #00d4ff; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">드롭다운 토글 테스트</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>5. 앵커 네비게이션 테스트</h2>
+            <div id="test5" class="test-result">로딩 중...</div>
+            <button onclick="testAnchorNav()" style="padding: 10px 20px; background: #00d4ff; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">앵커 네비게이션 테스트</button>
+        </div>
+    </div>
+
+    <script>
+        // navbar 로드 후 테스트 시작
+        setTimeout(() => {
+            runTests();
+        }, 500);
+
+        function runTests() {
+            // Test 1: Navbar 요소 존재 확인
+            const navbar = document.querySelector('nav.navbar');
+            const authDropdown = document.getElementById('authDropdown');
+            const loginItem = document.getElementById('loginItem');
+            const signupItem = document.getElementById('signupItem');
+            
+            let test1HTML = '';
+            if (navbar) {
+                test1HTML += '<div class="pass">✓ navbar 요소 존재</div>';
+            } else {
+                test1HTML += '<div class="fail">✗ navbar 요소 없음</div>';
+            }
+            if (authDropdown) {
+                test1HTML += '<div class="pass">✓ authDropdown 요소 존재</div>';
+            } else {
+                test1HTML += '<div class="fail">✗ authDropdown 요소 없음</div>';
+            }
+            if (loginItem && signupItem) {
+                test1HTML += '<div class="pass">✓ loginItem, signupItem 요소 존재</div>';
+            } else {
+                test1HTML += '<div class="fail">✗ loginItem 또는 signupItem 요소 없음</div>';
+            }
+            document.getElementById('test1').innerHTML = test1HTML;
+            
+            // Test 2: 로그인 상태 확인
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(data => {
+                    let test2HTML = '';
+                    test2HTML += `<div class="pass">✓ API 응답: isLoggedIn=${data.isLoggedIn}</div>`;
+                    
+                    const isVisible = authDropdown && authDropdown.style.display !== 'none';
+                    const shouldBeVisible = data.isLoggedIn;
+                    
+                    if (isVisible === shouldBeVisible) {
+                        test2HTML += `<div class="pass">✓ 드롭다운 표시 상태 정확함</div>`;
+                    } else {
+                        test2HTML += `<div class="fail">✗ 드롭다운 표시 상태 오류 (표시중: ${isVisible}, 로그인: ${shouldBeVisible})</div>`;
+                    }
+                    
+                    const loginVisible = loginItem && loginItem.style.display !== 'none';
+                    const signupVisible = signupItem && signupItem.style.display !== 'none';
+                    if (loginVisible === !shouldBeVisible && signupVisible === !shouldBeVisible) {
+                        test2HTML += `<div class="pass">✓ 로그인/회원가입 버튼 표시 상태 정확함</div>`;
+                    } else {
+                        test2HTML += `<div class="fail">✗ 로그인/회원가입 버튼 표시 상태 오류</div>`;
+                    }
+                    document.getElementById('test2').innerHTML = test2HTML;
+                })
+                .catch(err => {
+                    document.getElementById('test2').innerHTML = `<div class="fail">✗ API 오류: ${err.message}</div>`;
+                });
+            
+            // Test 3: 함수 정의 확인
+            let test3HTML = '';
+            if (typeof toggleDropdown === 'function') {
+                test3HTML += '<div class="pass">✓ toggleDropdown 함수 정의됨</div>';
+            } else {
+                test3HTML += '<div class="fail">✗ toggleDropdown 함수 정의 안 됨</div>';
+            }
+            if (typeof logout === 'function') {
+                test3HTML += '<div class="pass">✓ logout 함수 정의됨</div>';
+            } else {
+                test3HTML += '<div class="fail">✗ logout 함수 정의 안 됨</div>';
+            }
+            if (typeof handleAnchorNav === 'function') {
+                test3HTML += '<div class="pass">✓ handleAnchorNav 함수 정의됨</div>';
+            } else {
+                test3HTML += '<div class="fail">✗ handleAnchorNav 함수 정의 안 됨</div>';
+            }
+            if (typeof updateNavigation === 'function') {
+                test3HTML += '<div class="pass">✓ updateNavigation 함수 정의됨</div>';
+            } else {
+                test3HTML += '<div class="fail">✗ updateNavigation 함수 정의 안 됨</div>';
+            }
+            document.getElementById('test3').innerHTML = test3HTML;
+            
+            // Test 4: 드롭다운 준비
+            document.getElementById('test4').innerHTML = '<div class="pass">✓ 위의 버튼을 클릭하여 드롭다운을 토글해보세요</div>';
+            
+            // Test 5: 앵커 네비게이션 준비
+            document.getElementById('test5').innerHTML = '<div class="pass">✓ 위의 버튼을 클릭하여 앵커 네비게이션을 테스트해보세요</div>';
+        }
+
+        function testDropdown() {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            if (!dropdownMenu) {
+                alert('드롭다운 메뉴를 찾을 수 없습니다');
+                return;
+            }
+            dropdownMenu.classList.toggle('show');
+            alert(`드롭다운 메뉴 토글됨 (현재 상태: ${dropdownMenu.classList.contains('show') ? '표시' : '숨김'})`);
+        }
+
+        function testAnchorNav() {
+            const currentPath = window.location.pathname;
+            const targetSection = 'about';
+            if (currentPath === '/') {
+                alert('이미 홈페이지입니다. 자기소개 섹션으로 스크롤합니다.');
+                const section = document.getElementById(targetSection);
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth' });
+                }
+            } else {
+                alert(`홈페이지로 이동합니다: /#${targetSection}`);
+                window.location.href = `/#${targetSection}`;
+            }
+        }
+    </script>
+</body>
+</html>

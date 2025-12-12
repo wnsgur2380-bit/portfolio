@@ -1,0 +1,52 @@
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo">
+            <a href="/">Myworks <span>*</span></a>
+        </div>
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="/" class="nav-link">홈</a></li>
+            <li><a href="#about" class="nav-link" onclick="handleAnchorNav(event, 'about')">자기소개</a></li>
+            <li><a href="#portfolio" class="nav-link" onclick="handleAnchorNav(event, 'portfolio')">포트폴리오</a></li>
+            <li><a href="#career" class="nav-link" onclick="handleAnchorNav(event, 'career')">직업소개</a></li>
+            <li><a href="#projects" class="nav-link" onclick="handleAnchorNav(event, 'projects')">프로젝트</a></li>
+            <li><a href="/board" class="nav-link">게시판</a></li>
+            <li><a href="#contact" class="nav-link contact-btn" onclick="handleAnchorNav(event, 'contact')">문의하기</a></li>
+            
+            <!-- 항상 표시되는 드롭다운 -->
+            <li class="nav-dropdown">
+                <a href="#" class="nav-link contact-btn dropdown-toggle" onclick="toggleDropdown(event)">
+                    <span id="dropdownName">메뉴</span> <i class="fas fa-chevron-down"></i>
+                </a>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <!-- 로그인한 경우 -->
+                    <a href="/dashboard" class="dropdown-item" id="dashboardItem" style="display:none;">
+                        <i class="fas fa-chart-line"></i> 대시보드
+                    </a>
+                    <a href="/profile" class="dropdown-item" id="profileItem" style="display:none;">
+                        <i class="fas fa-user-edit"></i> 회원 정보 수정
+                    </a>
+                    <hr id="separatorItem" style="display:none; margin: 8px 0; border: none; border-top: 1px solid var(--border-color);">
+                    
+                    <!-- 공통 항목 -->
+                    <a href="/login" class="dropdown-item" id="loginItem">
+                        <i class="fas fa-sign-in-alt"></i> 로그인
+                    </a>
+                    <a href="/signup" class="dropdown-item" id="signupItem">
+                        <i class="fas fa-user-plus"></i> 회원가입
+                    </a>
+                    
+                    <!-- 로그인한 경우 -->
+                    <a href="#" class="dropdown-item" id="logoutItem" onclick="logout(event)" style="display:none;">
+                        <i class="fas fa-sign-out-alt"></i> 로그아웃
+                    </a>
+                </div>
+            </li>
+        </ul>
+        <div class="hamburger" onclick="toggleHamburgerMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</nav>
+

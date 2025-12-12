@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - Myworks</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="/navbar-loader.js?v=3.0"></script>
+    <style>
+        .login-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            padding: 20px;
+            margin-top: 0;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .login-header h1 {
+            font-size: 48px;
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-header p {
+            color: #b0b0b0;
+            font-size: 16px;
+        }
+
+        .login-form {
+            background: #1a1a1a;
+            padding: 50px 40px;
+            border-radius: 10px;
+            border: 1px solid #333333;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #333333;
+            border-radius: 5px;
+            background: #0d0d0d;
+            color: #ffffff;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+            background: #0d0d0d;
+        }
+
+        .form-group input::placeholder {
+            color: #666666;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #0d0d0d;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            padding: 12px 15px;
+            background: rgba(255, 70, 70, 0.1);
+            border: 2px solid #ff4646;
+            border-radius: 5px;
+            color: #ff8888;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+
+        .login-footer a {
+            color: #00d4ff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 600;
+        }
+
+        .login-footer a:hover {
+            color: #ffffff;
+        }
+
+        .account-info {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 5px;
+            padding: 10px 12px;
+            margin-top: 25px;
+            font-size: 12px;
+            color: #b0b0b0;
+        }
+
+        .account-item {
+            padding: 8px 12px;
+            border-radius: 3px;
+            background: rgba(0, 0, 0, 0.3);
+            margin: 5px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .account-item code {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        /* Navbar 숨김 */
+        .navbar {
+            display: none;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .login-section {
+                margin-top: 0;
+            }
+
+            .login-form {
+                padding: 40px 25px;
+            }
+
+            .login-header h1 {
+                font-size: 32px;
+            }
+
+            .login-header {
+                margin-bottom: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="login-section">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>System Access</h1>
+                <p>로그인하여 시스템에 접근하세요</p>
+            </div>
+
+            <form method="POST" class="login-form" id="loginForm">
+                <div id="errorContainer"></div>
+
+                <div class="form-group">
+                    <label for="username">사용자명</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="사용자명을 입력하세요"
+                        required
+                        autofocus
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="비밀번호를 입력하세요"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="login-button">로그인</button>
+            </form>
+
+            <div class="login-footer">
+                <a href="/">← 홈페이지로 돌아가기</a> | <a href="/board">게시판 보기</a> | <a href="/signup">회원가입</a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorContainer = document.getElementById('errorContainer');
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    errorContainer.innerHTML = `<div class="error-message">${data.error}</div>`;
+                }
+            } catch (error) {
+                errorContainer.innerHTML = `<div class="error-message">로그인 처리 중 오류가 발생했습니다.</div>`;
+            }
+        });
+    </script>
+</body>
+</html>

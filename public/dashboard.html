@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대시보드 - Myworks</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="/navbar-loader.js?v=3.0"></script>
+    <style>
+        .dashboard-container {
+            min-height: 100vh;
+            padding: 100px 20px 50px 20px;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+        }
+
+        .dashboard-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .dashboard-header h1 {
+            font-size: 48px;
+            color: #ffffff;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .dashboard-header p {
+            color: #00d4ff;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+            border: 1px solid #333333;
+            border-radius: 10px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-card:hover {
+            border-color: #00d4ff;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .card-title {
+            color: #00d4ff;
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            font-size: 20px;
+        }
+
+        .user-info-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #333333;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #b0b0b0;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #ffffff;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stats-value {
+            font-size: 48px;
+            color: #00d4ff;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .stats-label {
+            text-align: center;
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #0d0d0d;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: #333333;
+            color: #ffffff;
+            border: 1px solid #00d4ff;
+        }
+
+        .btn-secondary:hover {
+            background: #00d4ff;
+            color: #0d0d0d;
+        }
+
+        .btn-danger {
+            background: #cc0000;
+            color: #ffffff;
+        }
+
+        .btn-danger:hover {
+            background: #ff0000;
+        }
+
+        .btn i {
+            font-size: 16px;
+        }
+
+        .menu-section {
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid #333333;
+        }
+
+        .menu-title {
+            color: #00d4ff;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .menu-item {
+            background: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        .menu-item:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+            transform: translateY(-3px);
+        }
+
+        .menu-item-icon {
+            font-size: 32px;
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .menu-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header h1 {
+                font-size: 32px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-content">
+            <div class="dashboard-header">
+                <h1>대시보드</h1>
+                <p>시스템 정보 및 관리</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- 사용자 정보 카드 -->
+                <div class="dashboard-card">
+                    <div class="card-title">
+                        <i class="fas fa-user-circle"></i> 사용자 정보
+                    </div>
+                    <div class="user-info-grid">
+                        <div class="info-row">
+                            <span class="info-label">사용자명</span>
+                            <span class="info-value" id="username">로딩 중...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">이름</span>
+                            <span class="info-value" id="fullname">로딩 중...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">권한</span>
+                            <span class="info-value" id="role">로딩 중...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">ID</span>
+                            <span class="info-value" id="userid">로딩 중...</span>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <a href="/profile" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> 정보 수정
+                        </a>
+                        <button class="btn btn-danger" onclick="handleLogout()">
+                            <i class="fas fa-sign-out-alt"></i> 로그아웃
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 게시판 통계 카드 -->
+                <div class="dashboard-card">
+                    <div class="card-title">
+                        <i class="fas fa-bar-chart"></i> 게시판 통계
+                    </div>
+                    <div>
+                        <div class="stats-value" id="postcount">0</div>
+                        <div class="stats-label">총 게시글</div>
+                    </div>
+                </div>
+
+                <!-- 조회수 통계 카드 -->
+                <div class="dashboard-card">
+                    <div class="card-title">
+                        <i class="fas fa-eye"></i> 조회 통계
+                    </div>
+                    <div>
+                        <div class="stats-value" id="totalviews">0</div>
+                        <div class="stats-label">전체 조회수</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 빠른 메뉴 섹션 -->
+            <div class="menu-section">
+                <div class="menu-title">빠른 메뉴</div>
+                <div class="menu-grid">
+                    <a href="/board" class="menu-item">
+                        <div class="menu-item-icon"><i class="fas fa-th-list"></i></div>
+                        <div class="menu-item-title">게시판</div>
+                    </a>
+                    <a href="/profile" class="menu-item">
+                        <div class="menu-item-icon"><i class="fas fa-user-edit"></i></div>
+                        <div class="menu-item-title">회원정보 수정</div>
+                    </a>
+                    <a href="/admin" class="menu-item" id="adminMenuItem" style="display:none;">
+                        <div class="menu-item-icon"><i class="fas fa-cog"></i></div>
+                        <div class="menu-item-title">관리자</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadDashboardData() {
+            try {
+                const userResponse = await fetch('/api/user-info');
+                if (!userResponse.ok) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const userData = await userResponse.json();
+                document.getElementById('username').textContent = userData.username;
+                document.getElementById('fullname').textContent = userData.full_name;
+                document.getElementById('role').textContent = userData.role;
+                document.getElementById('userid').textContent = userData.id;
+
+                if (userData.role === 'admin') {
+                    document.getElementById('adminMenuItem').style.display = 'block';
+                }
+
+                const postsResponse = await fetch('/api/posts');
+                if (postsResponse.ok) {
+                    const posts = await postsResponse.json();
+                    document.getElementById('postcount').textContent = posts.length;
+                    const totalViews = posts.reduce((sum, post) => sum + (post.views || 0), 0);
+                    document.getElementById('totalviews').textContent = totalViews;
+                }
+
+                if (typeof updateNavigation === 'function') {
+                    await updateNavigation();
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        function handleLogout() {
+            if (typeof logout === 'function') {
+                const event = new Event('click');
+                logout(event);
+            } else {
+                fetch('/logout', { method: 'POST' })
+                    .then(() => window.location.href = '/')
+                    .catch(err => console.error('Logout error:', err));
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(loadDashboardData, 100);
+            });
+        } else {
+            setTimeout(loadDashboardData, 100);
+        }
+    </script>
+</body>
+</html>

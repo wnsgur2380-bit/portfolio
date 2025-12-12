@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 정보 수정</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/navbar-loader.js?v=3.0"></script>
+    <style>
+        .profile-section {
+            min-height: 100vh;
+            background-color: var(--white);
+            padding: 80px 20px 50px;
+            margin-top: 0;
+        }
+
+        .profile-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .profile-header h1 {
+            font-size: 32px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .profile-header p {
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+
+        .profile-card {
+            background-color: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--primary-color);
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .form-group input:disabled {
+            background-color: var(--border-color);
+            color: var(--secondary-color);
+            cursor: not-allowed;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-save {
+            background-color: var(--accent-color);
+            color: var(--white);
+        }
+
+        .btn-save:hover {
+            background-color: #00a8cc;
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-cancel {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+        }
+
+        .btn-cancel:hover {
+            background-color: var(--border-color);
+        }
+
+        .btn-delete {
+            background-color: transparent;
+            border: 1px solid #ff4444;
+            color: #ff4444;
+        }
+
+        .btn-delete:hover {
+            background-color: #ff4444;
+            color: var(--white);
+        }
+
+        .delete-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .delete-section h3 {
+            color: #ff4444;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .delete-section p {
+            color: var(--secondary-color);
+            font-size: 13px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .message.success {
+            background-color: rgba(0, 212, 255, 0.1);
+            border-left: 3px solid var(--accent-color);
+            color: var(--accent-color);
+            display: block;
+        }
+
+        .message.error {
+            background-color: rgba(255, 68, 68, 0.1);
+            border-left: 3px solid #ff4444;
+            color: #ff4444;
+            display: block;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .back-button:hover {
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .profile-section {
+                padding: 60px 15px 50px;
+            }
+
+            .profile-header h1 {
+                font-size: 24px;
+            }
+
+            .profile-card {
+                padding: 25px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <a href="/">Myworks <span>*</span></a>
+            </div>
+            <div class="nav-menu">
+                <a href="/" class="nav-link">홈</a>
+                <a href="/board" class="nav-link">게시판</a>
+                <a href="/dashboard" class="nav-link">대시보드</a>
+                <a href="#" onclick="logout(event)" class="nav-link contact-btn">로그아웃</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="profile-section">
+        <div class="profile-container">
+            <a href="/dashboard" class="back-button">
+                <i class="fas fa-arrow-left"></i> 대시보드로 돌아가기
+            </a>
+
+            <div class="profile-header">
+                <h1>회원 정보 수정</h1>
+                <p>개인 정보를 수정할 수 있습니다</p>
+            </div>
+
+            <div class="profile-card">
+                <div id="message" class="message"></div>
+
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="username">ID (변경 불가)</label>
+                        <input type="text" id="username" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fullName">이름</label>
+                        <input type="text" id="fullName" name="fullName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="currentPassword">현재 비밀번호</label>
+                        <input type="password" id="currentPassword" name="currentPassword" placeholder="비밀번호 변경 시에만 입력">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPassword">새 비밀번호</label>
+                        <input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호 입력">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">비밀번호 확인</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="새 비밀번호 재입력">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">역할 (변경 불가)</label>
+                        <input type="text" id="role" disabled>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-save">
+                            <i class="fas fa-save"></i> 저장
+                        </button>
+                        <a href="/dashboard" class="btn btn-cancel" style="text-decoration: none; text-align: center;">
+                            <i class="fas fa-times"></i> 취소
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Delete Section -->
+                <div class="delete-section">
+                    <h3>계정 삭제</h3>
+                    <p>계정을 삭제하면 모든 데이터가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</p>
+                    <button onclick="deleteAccount()" class="btn btn-delete">
+                        <i class="fas fa-trash"></i> 계정 삭제
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        async function loadProfile() {
+            try {
+                // URL 파라미터에서 userId 확인
+                const params = new URLSearchParams(window.location.search);
+                const userId = params.get('userId');
+                
+                let apiUrl = '/api/user-info';
+                if (userId) {
+                    apiUrl = `/api/admin/users?id=${userId}`;
+                }
+                
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                let user;
+                if (userId) {
+                    const users = await response.json();
+                    user = users.find(u => u.id === parseInt(userId));
+                    if (!user) {
+                        alert('사용자를 찾을 수 없습니다.');
+                        window.location.href = '/admin';
+                        return;
+                    }
+                } else {
+                    user = await response.json();
+                }
+                
+                document.getElementById('username').value = user.username;
+                document.getElementById('fullName').value = user.full_name;
+                document.getElementById('role').value = user.role;
+
+                
+                // Update navbar after profile loads
+                if (typeof updateNavigation === 'function') {
+                    await updateNavigation();
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 2000);
+            }
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fullName = document.getElementById('fullName').value;
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // 비밀번호 변경 검증
+            if ((newPassword || confirmPassword || currentPassword)) {
+                if (!currentPassword) {
+                    showMessage('현재 비밀번호를 입력하세요.', 'error');
+                    return;
+                }
+                if (!newPassword) {
+                    showMessage('새 비밀번호를 입력하세요.', 'error');
+                    return;
+                }
+                if (newPassword !== confirmPassword) {
+                    showMessage('새 비밀번호가 일치하지 않습니다.', 'error');
+                    return;
+                }
+                if (newPassword.length < 6) {
+                    showMessage('비밀번호는 최소 6자 이상이어야 합니다.', 'error');
+                    return;
+                }
+            }
+
+            try {
+                const body = {
+                    full_name: fullName,
+                    email: email
+                };
+
+                if (newPassword) {
+                    body.current_password = currentPassword;
+                    body.new_password = newPassword;
+                }
+
+                const response = await fetch('/api/user-info', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage('정보가 수정되었습니다.', 'success');
+                } else {
+                    showMessage(data.error || '수정 실패', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showMessage('수정 중 오류가 발생했습니다.', 'error');
+            }
+        });
+
+        function deleteAccount() {
+            const confirmed = confirm('정말로 계정을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.');
+            if (!confirmed) return;
+
+            const doubleConfirm = prompt('계정 삭제를 확인하려면 "삭제"를 입력하세요:');
+            if (doubleConfirm !== '삭제') {
+                showMessage('계정 삭제가 취소되었습니다.', 'error');
+                return;
+            }
+
+            const deleteConfirm = confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');
+            if (!deleteConfirm) return;
+
+            fetch('/api/user-info', {
+                method: 'DELETE'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('계정이 삭제되었습니다. 홈으로 이동합니다.', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    showMessage(data.error || '삭제 실패', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting account:', error);
+                showMessage('삭제 중 오류가 발생했습니다.', 'error');
+            });
+        }
+
+        function logout(e) {
+            e.preventDefault();
+            fetch('/logout', { method: 'POST' })
+                .then(() => window.location.href = '/')
+                .catch(err => console.error('Logout error:', err));
+        }
+
+        // Load profile on page load - with delay to allow navbar to load first
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(loadProfile, 100);
+            });
+        } else {
+            setTimeout(loadProfile, 100);
+        }
+    </script>
+</body>
+</html>

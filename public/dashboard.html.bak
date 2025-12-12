@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대시보드 - Myworks</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="/navbar-loader.js?v=2.0"></script>
+    <style>
+        .dashboard-section {
+            min-height: 100vh;
+            padding: 80px 20px 50px;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+        }
+
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            margin-bottom: 40px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 42px;
+            color: #ffffff;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-header p {
+            color: #b0b0b0;
+            font-size: 16px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-card {
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #333333;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .dashboard-card h2 {
+            color: #00d4ff;
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .user-info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #333333;
+            color: #b0b0b0;
+        }
+
+        .user-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-info-label {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .user-info-value {
+            color: #00d4ff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .action-button {
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #0d0d0d;
+            border: none;
+            border-radius: 5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 14px;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .action-button-secondary {
+            background: #333333;
+            color: #ffffff;
+        }
+
+        .action-button-secondary:hover {
+            background: #444444;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            color: #00d4ff;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stat-label {
+            color: #b0b0b0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-header h1 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <a href="/">Myworks <span>*</span></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/#about" class="nav-link">자기소개</a></li>
+                <li><a href="/#portfolio" class="nav-link">포트폴리오</a></li>
+                <li><a href="/#career" class="nav-link">직업소개</a></li>
+                <li><a href="/#projects" class="nav-link">프로젝트</a></li>
+                <li><a href="/board" class="nav-link">게시판</a></li>
+                <li><a href="/dashboard" class="nav-link contact-btn" style="color: #00d4ff;">대시보드</a></li>
+                <li><a href="#" onclick="logout(event)" class="nav-link contact-btn">로그아웃</a></li>
+                <li><a href="/#contact" class="nav-link contact-btn">문의하기</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="dashboard-section">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>대시보드</h1>
+                <p>시스템 정보 및 관리</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- User Information -->
+                <div class="dashboard-card">
+                    <h2>사용자 정보</h2>
+                    <div id="userInfo">
+                        <div class="user-info-item">
+                            <span class="user-info-label">사용자명:</span>
+                            <span class="user-info-value" id="username">-</span>
+                        </div>
+                        <div class="user-info-item">
+                            <span class="user-info-label">전체명:</span>
+                            <span class="user-info-value" id="fullname">-</span>
+                        </div>
+                        <div class="user-info-item">
+                            <span class="user-info-label">권한:</span>
+                            <span class="user-info-value" id="role">-</span>
+                        </div>
+                        <div class="user-info-item">
+                            <span class="user-info-label">ID:</span>
+                            <span class="user-info-value" id="userid">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="dashboard-card">
+                    <h2>빠른 메뉴</h2>
+                    <div class="dashboard-actions">
+                        <a href="/board" class="action-button">게시판 보기</a>
+                        <a href="/board" class="action-button action-button-secondary" onclick="alert('게시판에서 글을 작성할 수 있습니다.'); return false;">글 작성</a>
+                        <a href="/profile" class="action-button action-button-secondary">회원 정보 수정</a>
+                        <a href="/" class="action-button action-button-secondary">홈페이지</a>
+                        <a href="/admin" class="action-button action-button-secondary" id="adminBtn" style="display:none;">관리자 페이지</a>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="dashboard-card">
+                    <h2>시스템 통계</h2>
+                    <div class="quick-stats">
+                        <div class="stat-box">
+                            <div class="stat-number" id="postCount">0</div>
+                            <div class="stat-label">게시물</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="totalViews">0</div>
+                            <div class="stat-label">전체 조회</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        async function loadDashboard() {
+            try {
+                // Get user info
+                const userResponse = await fetch('/api/user-info');
+                if (!userResponse.ok) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const userData = await userResponse.json();
+                document.getElementById('username').textContent = userData.username;
+                document.getElementById('fullname').textContent = userData.full_name;
+                document.getElementById('role').textContent = userData.role;
+                document.getElementById('userid').textContent = userData.id;
+
+                // Show admin button if admin
+                if (userData.role === 'admin') {
+                    document.getElementById('adminBtn').style.display = 'block';
+                }
+
+                // Get posts statistics
+                const postsResponse = await fetch('/api/posts');
+                const posts = await postsResponse.json();
+                document.getElementById('postCount').textContent = posts.length;
+                
+                const totalViews = posts.reduce((sum, post) => sum + (post.views || 0), 0);
+                document.getElementById('totalViews').textContent = totalViews;
+                
+                // Update navbar after dashboard loads
+                if (typeof updateNavigation === 'function') {
+                    await updateNavigation();
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        function logout(e) {
+            e.preventDefault();
+            console.log('[dashboard] logout called - using global logout function');
+            fetch('/logout', { method: 'POST' })
+                .then(() => window.location.href = '/')
+                .catch(err => console.error('Logout error:', err));
+        }
+
+        // Wait for navbar to be loaded first, then load dashboard
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(loadDashboard, 100);
+            });
+        } else {
+            setTimeout(loadDashboard, 100);
+        }
+    </script>
+</body>
+</html>

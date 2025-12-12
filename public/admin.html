@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/navbar-loader.js?v=3.0"></script>
+    <style>
+        .admin-section {
+            min-height: 100vh;
+            background-color: var(--white);
+            padding: 80px 20px 50px;
+            margin-top: 0;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .admin-header h1 {
+            font-size: 32px;
+            color: var(--primary-color);
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .admin-nav button {
+            padding: 12px 20px;
+            background-color: transparent;
+            border: none;
+            color: var(--secondary-color);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .admin-nav button.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+        }
+
+        .admin-nav button:hover {
+            color: var(--primary-color);
+        }
+
+        .admin-content {
+            display: none;
+        }
+
+        .admin-content.active {
+            display: block;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .admin-table thead {
+            background-color: rgba(0, 212, 255, 0.1);
+        }
+
+        .admin-table th {
+            padding: 15px;
+            text-align: left;
+            color: var(--accent-color);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .admin-table td {
+            padding: 15px;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .admin-table tbody tr:hover {
+            background-color: rgba(0, 212, 255, 0.05);
+        }
+
+        .admin-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .role-admin {
+            background-color: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+        }
+
+        .role-operator {
+            background-color: rgba(0, 212, 255, 0.2);
+            color: var(--accent-color);
+        }
+
+        .role-viewer {
+            background-color: rgba(176, 176, 176, 0.2);
+            color: var(--secondary-color);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: rgba(0, 212, 255, 0.2);
+            color: var(--accent-color);
+        }
+
+        .status-inactive {
+            background-color: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            background-color: transparent;
+            color: var(--secondary-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .action-btn.delete:hover {
+            color: #ff4444;
+            border-color: #ff4444;
+        }
+
+        .back-button {
+            padding: 10px 20px;
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--accent-color);
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background-color: var(--accent-color);
+            color: var(--white);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background-color: var(--light-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+
+        .edit-form {
+            background-color: var(--light-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group select {
+            background-color: var(--white);
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            padding: 8px;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--secondary-color);
+            padding: 40px 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--secondary-color);
+            padding: 40px 20px;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .admin-header h1 {
+                font-size: 24px;
+            }
+
+            .admin-nav {
+                flex-wrap: wrap;
+            }
+
+            .admin-table {
+                font-size: 12px;
+            }
+
+            .admin-table th,
+            .admin-table td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="admin-section">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>관리자 페이지</h1>
+                <a href="/dashboard" class="back-button">
+                    <i class="fas fa-arrow-left"></i> 돌아가기
+                </a>
+            </div>
+
+            <div class="admin-nav">
+                <button class="tab-btn active" onclick="switchTab('dashboard')">대시보드</button>
+                <button class="tab-btn" onclick="switchTab('users')">회원 관리</button>
+                <button class="tab-btn" onclick="switchTab('posts')">글 관리</button>
+                <button class="tab-btn" onclick="switchTab('comments')">댓글 관리</button>
+                <button class="tab-btn" onclick="switchTab('portfolio')">포트폴리오 관리</button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="admin-content active">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">총 회원 수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalPosts">0</div>
+                        <div class="stat-label">총 글 수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalComments">0</div>
+                        <div class="stat-label">총 댓글 수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="activeUsers">0</div>
+                        <div class="stat-label">활성 회원</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users-tab" class="admin-content">
+                <div id="usersLoading" class="loading">로딩 중...</div>
+                <table id="usersTable" class="admin-table" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>사용자명</th>
+                            <th>이름</th>
+                            <th>역할</th>
+                            <th>상태</th>
+                            <th>가입일</th>
+                            <th>마지막 로그인</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersList"></tbody>
+                </table>
+            </div>
+
+            <!-- Posts Tab -->
+            <div id="posts-tab" class="admin-content">
+                <div id="postsLoading" class="loading">로딩 중...</div>
+                <table id="postsTable" class="admin-table" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>제목</th>
+                            <th>작성자</th>
+                            <th>조회수</th>
+                            <th>작성일</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody id="postsList"></tbody>
+                </table>
+            </div>
+
+            <!-- Comments Tab -->
+            <div id="comments-tab" class="admin-content">
+                <div id="commentsLoading" class="loading">로딩 중...</div>
+                <table id="commentsTable" class="admin-table" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>글</th>
+                            <th>작성자</th>
+                            <th>내용</th>
+                            <th>작성일</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody id="commentsList"></tbody>
+                </table>
+            </div>
+            <!-- Portfolio Management Tab -->
+            <div id="portfolio-tab" class="admin-content">
+                <h2 style="margin-bottom: 20px;">포트폴리오 관리</h2>
+                
+                <div class="admin-form" style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(0, 212, 255, 0.2);">
+                    <h3 style="margin-bottom: 15px;">새 포트폴리오 추가</h3>
+                    <input type="text" id="portfolioTitle" placeholder="제목" style="margin-bottom: 10px; padding: 8px; width: 100%; border: 1px solid #333; border-radius: 4px; box-sizing: border-box; background: rgba(255, 255, 255, 0.1); color: #fff;">
+                    <textarea id="portfolioDescription" placeholder="설명" style="margin-bottom: 10px; padding: 8px; width: 100%; border: 1px solid #333; border-radius: 4px; height: 80px; box-sizing: border-box; background: rgba(255, 255, 255, 0.1); color: #fff;"></textarea>
+                    <input type="text" id="portfolioTags" placeholder="태그 (쉼표로 구분: Node.js, React, ...)" style="margin-bottom: 10px; padding: 8px; width: 100%; border: 1px solid #333; border-radius: 4px; box-sizing: border-box; background: rgba(255, 255, 255, 0.1); color: #fff;">
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; margin-bottom: 5px; color: #fff;">포트폴리오 이미지</label>
+                        <input type="file" id="portfolioImage" accept="image/*" style="margin-bottom: 10px; padding: 8px; width: 100%; border: 1px solid #333; border-radius: 4px; box-sizing: border-box; background: rgba(255, 255, 255, 0.1); color: #fff;">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="addBtn" onclick="addPortfolio()" style="flex: 1; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">추가</button>
+                        <button id="updateBtn" onclick="updatePortfolio()" style="flex: 1; padding: 10px 20px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: none;">수정</button>
+                        <button id="cancelBtn" onclick="cancelEdit()" style="flex: 1; padding: 10px 20px; background: #999; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: none;">취소</button>
+                    </div>
+                </div>
+
+                <div id="portfolioList">
+                    <!-- 포트폴리오 목록이 여기 로드됨 -->
+                </div>
+            </div>
+
+
+            <!-- Portfolio Management Tab -->
+                </div>
+
+            </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Edit Modal -->
+    <div id="userEditModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4);">
+        <div style="background-color: #fff; margin: 10% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+            <span onclick="closeUserEditModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            <h2 style="margin-top: 0;">사용자 수정</h2>
+            
+            <div id="editUserMessage" style="padding: 10px; border-radius: 4px; margin-bottom: 15px; display: none;"></div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">ID (변경 불가)</label>
+                <input type="text" id="editUserId" disabled style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Username (변경 불가)</label>
+                <input type="text" id="editUsername" disabled style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">이름</label>
+                <input type="text" id="editFullName" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">역할</label>
+                <select id="editRole" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                    <option value="admin">Admin</option>
+                    <option value="operator">Operator</option>
+                    <option value="viewer">Viewer</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">상태</label>
+                <select id="editIsActive" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                    <option value="true">활성</option>
+                    <option value="false">비활성</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="saveUserEdit()" style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">저장</button>
+                <button onclick="closeUserEditModal()" style="flex: 1; padding: 10px; background: #999; color: white; border: none; border-radius: 4px; cursor: pointer;">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.admin-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load content
+            if (tabName === 'users') loadUsers();
+            else if (tabName === 'posts') loadPosts();
+            else if (tabName === 'comments') loadComments();
+            else if (tabName === 'portfolio') loadPortfolios();
+            else if (tabName === 'dashboard') loadDashboard();
+            else if (tabName === 'portfolio') loadPortfolios();
+        }
+
+        async function loadDashboard() {
+            try {
+                const [usersRes, postsRes, commentsRes] = await Promise.all([
+                    fetch('/api/admin/users'),
+                    fetch('/api/admin/posts'),
+                    fetch('/api/admin/comments')
+                ]);
+
+                const users = await usersRes.json();
+                const posts = await postsRes.json();
+                const comments = await commentsRes.json();
+
+                document.getElementById('totalUsers').textContent = users.length;
+                document.getElementById('totalPosts').textContent = posts.length;
+                document.getElementById('totalComments').textContent = comments.length;
+                document.getElementById('activeUsers').textContent = users.filter(u => u.is_active).length;
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                document.getElementById('usersLoading').style.display = 'block';
+                document.getElementById('usersTable').style.display = 'none';
+
+                const response = await fetch('/api/admin/users');
+                const users = await response.json();
+
+                const tbody = document.getElementById('usersList');
+                tbody.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.full_name}</td>
+                        <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                        <td><span class="status-badge status-${user.is_active ? 'active' : 'inactive'}">${user.is_active ? '활성' : '비활성'}</span></td>
+                        <td>${new Date(user.created_at).toLocaleDateString('ko-KR')}</td>
+                        <td>${user.last_login ? new Date(user.last_login).toLocaleDateString('ko-KR') : '-'}</td>
+                        <td>
+                            <div class="admin-actions">
+                                <button class="action-btn" onclick="editUser(${user.id}, '${user.role}', ${user.is_active})">수정</button>
+                                <button class="action-btn delete" onclick="deleteUser(${user.id}, '${user.username}')">삭제</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('usersLoading').style.display = 'none';
+                document.getElementById('usersTable').style.display = 'table';
+            } catch (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('usersLoading').textContent = '사용자 로드 실패';
+            }
+        }
+
+        async function loadPosts() {
+            try {
+                document.getElementById('postsLoading').style.display = 'block';
+                document.getElementById('postsTable').style.display = 'none';
+
+                const response = await fetch('/api/admin/posts');
+                const posts = await response.json();
+
+                const tbody = document.getElementById('postsList');
+                tbody.innerHTML = posts.map(post => `
+                    <tr>
+                        <td>${post.post_id}</td>
+                        <td>${post.title}</td>
+                        <td>${post.full_name || post.username || '-'}</td>
+                        <td>${post.views}</td>
+                        <td>${new Date(post.created_at).toLocaleDateString('ko-KR')}</td>
+                        <td>
+                            <div class="admin-actions">
+                                <button class="action-btn delete" onclick="deletePost(${post.post_id}, '${post.title}')">삭제</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('postsLoading').style.display = 'none';
+                document.getElementById('postsTable').style.display = 'table';
+            } catch (error) {
+                console.error('Error loading posts:', error);
+                document.getElementById('postsLoading').textContent = '글 로드 실패';
+            }
+        }
+
+        async function loadComments() {
+            try {
+                document.getElementById('commentsLoading').style.display = 'block';
+                document.getElementById('commentsTable').style.display = 'none';
+
+                const response = await fetch('/api/admin/comments');
+                const comments = await response.json();
+
+                const tbody = document.getElementById('commentsList');
+                tbody.innerHTML = comments.map(comment => `
+                    <tr>
+                        <td>${comment.comment_id}</td>
+                        <td>${comment.post_title || '-'}</td>
+                        <td>${comment.full_name || comment.username}</td>
+                        <td>${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}</td>
+                        <td>${new Date(comment.created_at).toLocaleDateString('ko-KR')}</td>
+                        <td>
+                            <div class="admin-actions">
+                                <button class="action-btn delete" onclick="deleteComment(${comment.comment_id})">삭제</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('commentsLoading').style.display = 'none';
+                document.getElementById('commentsTable').style.display = 'table';
+            } catch (error) {
+                console.error('Error loading comments:', error);
+                document.getElementById('commentsLoading').textContent = '댓글 로드 실패';
+            }
+        }
+
+        async function editUser(userId, currentRole, currentStatus) {
+            window.location.href = '/profile';
+        }
+
+        async function deleteUser(userId, username) {
+            if (!confirm(`${username} 사용자를 삭제하시겠습니까?`)) return;
+
+            try {
+                const response = await fetch(`/api/admin/users/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('사용자가 삭제되었습니다.');
+                    loadUsers();
+                } else {
+                    alert('삭제 실패');
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('삭제 중 오류 발생');
+            }
+        }
+
+        async function deletePost(postId, title) {
+            if (!confirm(`"${title}" 글을 삭제하시겠습니까?`)) return;
+
+            try {
+                const response = await fetch(`/api/admin/posts/${postId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('글이 삭제되었습니다.');
+                    loadPosts();
+                } else {
+                    alert('삭제 실패');
+                }
+            } catch (error) {
+                console.error('Error deleting post:', error);
+                alert('삭제 중 오류 발생');
+            }
+        }
+
+        async function deleteComment(commentId) {
+            if (!confirm('댓글을 삭제하시겠습니까?')) return;
+
+            try {
+                const response = await fetch(`/api/admin/comments/${commentId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('댓글이 삭제되었습니다.');
+                    loadComments();
+                } else {
+                    alert('삭제 실패');
+                }
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+                alert('삭제 중 오류 발생');
+            }
+        }
+
+        function logout(e) {
+            e.preventDefault();
+            fetch('/logout', { method: 'POST' })
+                .then(() => window.location.href = '/')
+                .catch(err => console.error('Logout error:', err));
+        }
+
+        // Load dashboard on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                loadDashboard();
+                loadPortfolios();
+                if (typeof updateNavigation === 'function') {
+                    updateNavigation();
+                }
+            }, 100);
+        });
+
+        // Portfolio Functions
+        async function loadPortfolios() {
+            try {
+                const response = await fetch('/api/admin/portfolio');
+                const portfolios = await response.json();
+                const list = document.getElementById('portfolioList');
+                
+                list.innerHTML = '<h3 style="margin-bottom: 15px; color: #fff;">포트폴리오 목록</h3>' + portfolios.map(p => `
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(0, 212, 255, 0.2);">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 5px 0; color: #00d4ff;">${p.title}</h4>
+                                <p style="margin: 5px 0; color: #aaa; font-size: 14px;">${p.description}</p>
+                                <div style="margin-top: 10px;">
+                                    ${p.tags.map(tag => `<span style="display: inline-block; background: rgba(102, 126, 234, 0.2); padding: 3px 8px; border-radius: 3px; color: #667eea; margin-right: 5px; font-size: 12px;">${tag}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div style="margin-left: 10px;">
+                                <button onclick="editPortfolio(${p.portfolio_id})" style="padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 5px; display: block;">수정</button>
+                                <button onclick="deletePortfolio(${p.portfolio_id})" style="padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">삭제</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('포트폴리오 로드 중 오류:', error);
+            }
+        }
+
+        async function addPortfolio() {
+            const title = document.getElementById('portfolioTitle').value.trim();
+            const description = document.getElementById('portfolioDescription').value.trim();
+            const tagsStr = document.getElementById('portfolioTags').value.trim();
+            const imageFile = document.getElementById('portfolioImage').files[0];
+
+            if (!title || !description) {
+                alert('제목과 설명은 필수입니다.');
+                return;
+            }
+
+            const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()) : [];
+
+            try {
+                let imageData = null;
+                if (imageFile) {
+                    imageData = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(imageFile);
+                    });
+                }
+
+                const body = JSON.stringify({ title, description, tags, image: imageData });
+                console.log('Adding portfolio with:', { title, description, tags, hasImage: !!imageData });
+                
+                const response = await fetch('/api/admin/portfolio', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: body
+                });
+
+                const responseText = await response.text();
+                console.log('Response:', responseText);
+
+                if (response.ok) {
+                    alert('포트폴리오가 추가되었습니다.');
+                    document.getElementById('portfolioTitle').value = '';
+                    document.getElementById('portfolioDescription').value = '';
+                    document.getElementById('portfolioTags').value = '';
+                    document.getElementById('portfolioImage').value = '';
+                    loadPortfolios();
+                } else {
+                    alert('추가 실패: ' + responseText);
+                }
+            } catch (error) {
+                console.error('Error adding portfolio:', error);
+                alert('추가 중 오류 발생: ' + error.message);
+            }
+        }
+
+        let editingPortfolioId = null;
+
+        async function editPortfolio(portfolioId) {
+            try {
+                const response = await fetch('/api/admin/portfolio');
+                const portfolios = await response.json();
+                const portfolio = portfolios.find(p => p.portfolio_id === portfolioId);
+
+                if (portfolio) {
+                    document.getElementById('portfolioTitle').value = portfolio.title;
+                    document.getElementById('portfolioDescription').value = portfolio.description;
+                    document.getElementById('portfolioTags').value = portfolio.tags.join(', ');
+                    editingPortfolioId = portfolioId;
+                    
+                    // 버튼 토글
+                    document.getElementById('addBtn').style.display = 'none';
+                    document.getElementById('updateBtn').style.display = 'block';
+                    document.getElementById('cancelBtn').style.display = 'block';
+                    
+                    // 폼을 위로 스크롤
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            } catch (error) {
+                console.error('포트폴리오 로드 중 오류:', error);
+            }
+        }
+
+        function cancelEdit() {
+            document.getElementById('portfolioTitle').value = '';
+            document.getElementById('portfolioDescription').value = '';
+            document.getElementById('portfolioTags').value = '';
+            document.getElementById('portfolioImage').value = '';
+            editingPortfolioId = null;
+            
+            // 버튼 복원
+            document.getElementById('addBtn').style.display = 'block';
+            document.getElementById('updateBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        async function updatePortfolio() {
+            const title = document.getElementById('portfolioTitle').value.trim();
+            const description = document.getElementById('portfolioDescription').value.trim();
+            const tagsStr = document.getElementById('portfolioTags').value.trim();
+            const imageFile = document.getElementById('portfolioImage').files[0];
+
+            if (!title || !description) {
+                alert('제목과 설명은 필수입니다.');
+                return;
+            }
+
+            const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()) : [];
+
+            try {
+                let imageData = null;
+                if (imageFile) {
+                    imageData = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(imageFile);
+                    });
+                }
+
+                const response = await fetch(`/api/admin/portfolio/${editingPortfolioId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, description, tags, image: imageData })
+                });
+
+                if (response.ok) {
+                    alert('포트폴리오가 수정되었습니다.');
+                    document.getElementById('portfolioTitle').value = '';
+                    document.getElementById('portfolioDescription').value = '';
+                    document.getElementById('portfolioTags').value = '';
+                    document.getElementById('portfolioImage').value = '';
+                    editingPortfolioId = null;
+                    
+                    // 버튼 복원
+                    document.getElementById('addBtn').style.display = 'block';
+                    document.getElementById('updateBtn').style.display = 'none';
+                    document.getElementById('cancelBtn').style.display = 'none';
+                    
+                    loadPortfolios();
+                } else {
+                    alert('수정 실패');
+                }
+            } catch (error) {
+                console.error('Error updating portfolio:', error);
+                alert('수정 중 오류 발생');
+            }
+        }
+
+        async function deletePortfolio(portfolioId) {
+            if (!confirm('이 포트폴리오를 삭제하시겠습니까?')) return;
+
+            try {
+                const response = await fetch(`/api/admin/portfolio/${portfolioId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('포트폴리오가 삭제되었습니다.');
+                    loadPortfolios();
+                    fetch('/api/portfolio').catch(e => console.log('메인 포트폴리오 업데이트 완료'));
+                } else {
+                    alert('삭제 실패');
+                }
+            } catch (error) {
+                console.error('Error deleting portfolio:', error);
+                alert('삭제 중 오류 발생');
+            }
+        }
+
+
+        // User Edit Modal Functions
+        let editingUserId = null;
+
+        async function editUser(userId, currentRole, currentStatus) {
+            window.location.href = `/profile?userId=${userId}`;
+        }
+    </script>

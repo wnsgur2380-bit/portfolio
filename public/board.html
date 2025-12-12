@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판 - Myworks</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="/navbar-loader.js?v=3.0"></script>
+    <style>
+        .board-section {
+            min-height: 100vh;
+            padding: 80px 20px 50px;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+        }
+
+        .board-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .board-header h1 {
+            font-size: 42px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .write-button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #0d0d0d;
+            border: none;
+            border-radius: 5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 14px;
+        }
+
+        .write-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .write-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .board-item {
+            display: grid;
+            grid-template-columns: 1fr 150px 100px 100px;
+            gap: 20px;
+            padding: 15px 20px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333333;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            align-items: center;
+            border-left: 4px solid transparent;
+        }
+
+        .board-item:hover {
+            background: #242424;
+            border-left-color: #00d4ff;
+            transform: translateX(5px);
+        }
+
+        .board-item-title {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 15px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .board-item-title:hover {
+            color: #00d4ff;
+        }
+
+        .board-item-author {
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+
+        .board-item-date {
+            color: #666666;
+            font-size: 13px;
+        }
+
+        .board-item-views {
+            color: #666666;
+            font-size: 13px;
+            text-align: right;
+        }
+
+        .board-header-row {
+            display: grid;
+            grid-template-columns: 1fr 150px 100px 100px;
+            gap: 20px;
+            padding: 15px 20px;
+            background: #0d0d0d;
+            border-bottom: 2px solid #00d4ff;
+            font-weight: 600;
+            color: #00d4ff;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666666;
+        }
+
+        .empty-message p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .login-prompt {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid #00d4ff;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+
+        .login-prompt p {
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .login-prompt a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .login-prompt a:hover {
+            color: #ffffff;
+        }
+
+        .write-section {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 10px;
+            border: 1px solid #333333;
+            margin-bottom: 40px;
+        }
+
+        .write-section h2 {
+            color: #ffffff;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #333333;
+            border-radius: 5px;
+            background: #0d0d0d;
+            color: #ffffff;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+        }
+
+        .write-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .write-buttons button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .write-buttons .btn-submit {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #0d0d0d;
+            text-transform: uppercase;
+        }
+
+        .write-buttons .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .write-buttons .btn-cancel {
+            background: #333333;
+            color: #b0b0b0;
+        }
+
+        .write-buttons .btn-cancel:hover {
+            background: #444444;
+            color: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            .board-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .board-item,
+            .board-header-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .board-item-date,
+            .board-item-views,
+            .board-header-row span:nth-child(2),
+            .board-header-row span:nth-child(3),
+            .board-header-row span:nth-child(4) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation is loaded by navbar-loader.js -->
+
+    <section class="board-section">
+        <div class="board-container">
+            <div class="board-header">
+                <h1>게시판</h1>
+                <button class="write-button" id="writeBtn" style="display:none;" onclick="showWriteForm()">글쓰기</button>
+            </div>
+
+            <div id="loginPrompt" class="login-prompt" style="display:none;">
+                <p>글을 쓰려면 로그인이 필요합니다.</p>
+                <a href="/login">로그인하러 가기</a>
+            </div>
+
+            <div id="writeSection" class="write-section" style="display:none;">
+                <h2>새 글 작성</h2>
+                <form id="writeForm">
+                    <div class="form-group">
+                        <label for="title">제목</label>
+                        <input type="text" id="title" name="title" placeholder="제목을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="content">내용</label>
+                        <textarea id="content" name="content" placeholder="내용을 입력하세요" rows="10" required></textarea>
+                    </div>
+                    <div class="write-buttons">
+                        <button type="submit" class="btn-submit">등록</button>
+                        <button type="button" class="btn-cancel" onclick="hideWriteForm()">취소</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="boardList">
+                <div class="board-header-row">
+                    <span>제목</span>
+                    <span>작성자</span>
+                    <span>작성일</span>
+                    <span>조회</span>
+                </div>
+                <div id="postsContainer">
+                    <div class="empty-message">
+                        <p>게시물이 없습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let isLoggedIn = false;
+
+        async function checkLoginStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                isLoggedIn = data.isLoggedIn;
+                updateUI();
+            } catch (error) {
+                console.error('Failed to check login status:', error);
+            }
+        }
+
+        function updateUI() {
+            const writeBtn = document.getElementById('writeBtn');
+            const loginPrompt = document.getElementById('loginPrompt');
+
+            if (isLoggedIn) {
+                writeBtn.style.display = 'block';
+                loginPrompt.style.display = 'none';
+            } else {
+                writeBtn.style.display = 'none';
+                loginPrompt.style.display = 'block';
+            }
+        }
+
+        async function loadPosts() {
+            try {
+                const response = await fetch('/api/posts');
+                const posts = await response.json();
+                
+                const container = document.getElementById('postsContainer');
+                
+                if (posts.length === 0) {
+                    container.innerHTML = '<div class="empty-message"><p>게시물이 없습니다.</p></div>';
+                    return;
+                }
+
+                container.innerHTML = posts.map(post => {
+                    const date = new Date(post.created_at).toLocaleDateString('ko-KR');
+                    return `
+                        <div class="board-item" onclick="viewPost(${post.id})">
+                            <div class="board-item-title">${post.title}</div>
+                            <div class="board-item-author">${post.author}</div>
+                            <div class="board-item-date">${date}</div>
+                            <div class="board-item-views">${post.views} 조회</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading posts:', error);
+            }
+        }
+
+        function showWriteForm() {
+            document.getElementById('writeSection').style.display = 'block';
+            document.getElementById('title').focus();
+        }
+
+        function hideWriteForm() {
+            document.getElementById('writeSection').style.display = 'none';
+            document.getElementById('writeForm').reset();
+        }
+
+        document.getElementById('writeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+
+            try {
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, content })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    hideWriteForm();
+                    loadPosts();
+                } else {
+                    alert(data.error);
+                }
+            } catch (error) {
+                console.error('Error creating post:', error);
+                alert('글 작성 중 오류가 발생했습니다.');
+            }
+        });
+
+        function viewPost(id) {
+            window.location.href = '/board/view/' + id;
+        }
+
+        // logout 함수는 navbar-loader.js에서 전역으로 정의됨
+
+        // 초기화
+        checkLoginStatus();
+        loadPosts();
+    </script>
+</body>
+</html>
