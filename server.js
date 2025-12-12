@@ -209,6 +209,7 @@ app.get('/api/status', (req, res) => {
     res.json({ 
         isLoggedIn: req.session.user_id ? true : false,
         loggedIn: req.session.user_id ? true : false,
+        username: req.session.username || null,
         role: req.session.role || null
     });
 });
