@@ -38,7 +38,11 @@ app.use(session({
     secret: 'your-secret-key-change-this',
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }
+    cookie: { 
+        maxAge: 24 * 60 * 60 * 1000,
+        secure: process.env.NODE_ENV === 'production',  // HTTPS에서만 쿠키 전송
+        sameSite: 'lax'  // CORS 요청에서도 쿠키 전송
+    }
 }));
 
 // Static files
