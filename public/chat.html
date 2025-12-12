@@ -249,9 +249,6 @@
     </style>
 </head>
 <body>
-    <div id="navbar-container"></div>
-    <script src="navbar-loader.js?v=3.0"></script>
-
     <div id="nicknamePrompt">
         <div class="nickname-dialog">
             <h2>닉네임 설정</h2>
@@ -283,31 +280,46 @@
         function checkLoginStatus() {
             console.log('checkLoginStatus called');
             fetch('/api/status')
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch status');
+                    return response.json();
+                })
                 .then(data => {
                     console.log('Login status:', data.isLoggedIn, 'Username:', data.username);
                     if (!data.isLoggedIn) {
+                        console.log('Not logged in, redirecting to home');
                         window.location.href = '/';
                         return;
                     }
                     // 닉네임을 username으로 자동 설정
-                    const nicknameInput = document.getElementById('nicknameInput');
-                    if (nicknameInput) {
-                        console.log('Setting nickname to:', data.username);
-                        nicknameInput.value = data.username || 'Guest';
-                    } else {
-                        console.warn('nicknameInput element not found');
-                    }
+                    setTimeout(() => {
+                        const nicknameInput = document.getElementById('nicknameInput');
+                        if (nicknameInput) {
+                            console.log('Setting nickname to:', data.username);
+                            nicknameInput.value = data.username || 'Guest';
+                        } else {
+                            console.warn('nicknameInput element not found');
+                        }
+                    }, 100);
                 })
                 .catch(error => {
                     console.error('Failed to check login status:', error);
-                    // 오류 시에도 리다이렉트하지 않고, 사용자가 닉네임 입력하도록 함
+                    // 오류 발생 시 로그인 페이지로 리다이렉트
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 500);
                 });
         }
 
         // 닉네임 설정 및 채팅 시작
         function setNickname() {
+            console.log('setNickname called');
             const input = document.getElementById('nicknameInput');
+            if (!input) {
+                console.error('nicknameInput not found');
+                return;
+            }
+            
             nickname = input.value.trim();
             
             if (!nickname) {
@@ -315,11 +327,22 @@
                 return;
             }
             
+            console.log('Setting nickname:', nickname);
+            
             const promptDiv = document.getElementById('nicknamePrompt');
             const chatDiv = document.getElementById('chatContainer');
             
-            if (promptDiv) promptDiv.style.display = 'none';
-            if (chatDiv) chatDiv.style.display = 'flex';
+            if (!promptDiv) {
+                console.error('nicknamePrompt not found');
+                return;
+            }
+            if (!chatDiv) {
+                console.error('chatContainer not found');
+                return;
+            }
+            
+            promptDiv.style.display = 'none';
+            chatDiv.style.display = 'flex';
             
             connectWebSocket();
         }
