@@ -249,6 +249,9 @@
     </style>
 </head>
 <body>
+    <div id="navbar-container"></div>
+    <script src="navbar-loader.js?v=3.0"></script>
+
     <div id="nicknamePrompt">
         <div class="nickname-dialog">
             <h2>닉네임 설정</h2>
@@ -278,9 +281,11 @@
 
         // 로그인 상태 확인
         function checkLoginStatus() {
+            console.log('checkLoginStatus called');
             fetch('/api/status')
                 .then(response => response.json())
                 .then(data => {
+                    console.log('Login status:', data.isLoggedIn, 'Username:', data.username);
                     if (!data.isLoggedIn) {
                         window.location.href = '/';
                         return;
@@ -288,12 +293,15 @@
                     // 닉네임을 username으로 자동 설정
                     const nicknameInput = document.getElementById('nicknameInput');
                     if (nicknameInput) {
+                        console.log('Setting nickname to:', data.username);
                         nicknameInput.value = data.username || 'Guest';
+                    } else {
+                        console.warn('nicknameInput element not found');
                     }
                 })
                 .catch(error => {
                     console.error('Failed to check login status:', error);
-                    window.location.href = '/';
+                    // 오류 시에도 리다이렉트하지 않고, 사용자가 닉네임 입력하도록 함
                 });
         }
 
@@ -434,44 +442,51 @@
 
         // 초기화 함수
         function initializeChat() {
+            console.log('initializeChat called');
+            
             // 로그인 상태 확인
             checkLoginStatus();
             
-            // 닉네임 설정 버튼 클릭 이벤트
+            // 모든 요소가 존재하는지 확인 후 이벤트 리스너 등록
             const setNicknameBtn = document.getElementById('setNicknameBtn');
-            if (setNicknameBtn) {
-                setNicknameBtn.addEventListener('click', setNickname);
+            const nicknameInput = document.getElementById('nicknameInput');
+            const messageInput = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+            
+            if (!setNicknameBtn || !nicknameInput || !messageInput || !sendBtn) {
+                console.error('Required elements not found, retrying...');
+                setTimeout(initializeChat, 500);
+                return;
             }
+            
+            console.log('All elements found, setting up event listeners');
+            
+            // 닉네임 설정 버튼 클릭 이벤트
+            setNicknameBtn.addEventListener('click', setNickname);
             
             // 닉네임 입력 필드 Enter 키 이벤트
-            const nicknameInput = document.getElementById('nicknameInput');
-            if (nicknameInput) {
-                nicknameInput.addEventListener('keypress', function(event) {
-                    if (event.key === 'Enter') {
-                        setNickname();
-                    }
-                });
-            }
+            nicknameInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    setNickname();
+                }
+            });
             
             // 메시지 입력 필드 Enter 키 이벤트
-            const messageInput = document.getElementById('messageInput');
-            if (messageInput) {
-                messageInput.addEventListener('keypress', handleKeyPress);
-            }
+            messageInput.addEventListener('keypress', handleKeyPress);
             
             // 전송 버튼 클릭 이벤트
-            const sendBtn = document.getElementById('sendBtn');
-            if (sendBtn) {
-                sendBtn.addEventListener('click', sendMessage);
-            }
+            sendBtn.addEventListener('click', sendMessage);
         }
 
-        // DOM 로드 완료 후 초기화
+        // DOM 로드 완료 후 초기화 (충분한 지연 추가)
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeChat);
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOMContentLoaded fired, waiting 1 second for navbar-loader...');
+                setTimeout(initializeChat, 1000);
+            });
         } else {
-            // 이미 로드된 경우
-            initializeChat();
+            console.log('DOM already loaded, initializing...');
+            setTimeout(initializeChat, 1000);
         }
     </script>
 </body>
