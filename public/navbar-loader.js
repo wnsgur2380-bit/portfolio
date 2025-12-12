@@ -31,6 +31,7 @@ async function updateNavigation() {
         const loginItem = document.getElementById('loginItem');
         const signupItem = document.getElementById('signupItem');
         const logoutItem = document.getElementById('logoutItem');
+        const chatLink = document.getElementById('chatLink');
         const dropdownName = document.getElementById('dropdownName');
         
         if (data.isLoggedIn) {
@@ -42,6 +43,7 @@ async function updateNavigation() {
             if (profileItem) profileItem.style.display = 'block';
             if (separatorItem) separatorItem.style.display = 'block';
             if (logoutItem) logoutItem.style.display = 'block';
+            if (chatLink) chatLink.style.display = 'block';  // 채팅 링크 표시
             
             // 로그인/회원가입 숨김
             if (loginItem) loginItem.style.display = 'none';
@@ -70,6 +72,7 @@ async function updateNavigation() {
             if (profileItem) profileItem.style.display = 'none';
             if (separatorItem) separatorItem.style.display = 'none';
             if (logoutItem) logoutItem.style.display = 'none';
+            if (chatLink) chatLink.style.display = 'none';  // 채팅 링크 숨김
             
             // 로그인/회원가입 표시
             if (loginItem) loginItem.style.display = 'block';

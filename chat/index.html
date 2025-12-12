@@ -260,9 +260,22 @@
         let nickname = '';
         let isConnected = false;
         
-        // 페이지 로드 시 실행
-        window.addEventListener('load', () => {
-            document.getElementById('nicknameInput').focus();
+        // 페이지 로드 시 실행 - 사용자 정보 자동 로드
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/api/user-info');
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('nicknameInput').value = user.full_name || user.username;
+                    document.getElementById('nicknameInput').focus();
+                } else {
+                    // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('사용자 정보 로드 실패:', error);
+                window.location.href = '/login';
+            }
         });
         
         // 닉네임 설정
