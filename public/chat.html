@@ -288,28 +288,21 @@
                 })
                 .then(data => {
                     console.log('Login status:', data.isLoggedIn, 'Username:', data.username);
-                    if (!data.isLoggedIn) {
-                        console.log('Not logged in, redirecting to home');
-                        window.location.href = '/';
-                        return;
+                    // 페이지에 도착했다는 것은 이미 로그인했다는 의미 (서버에서 체크함)
+                    if (data.username) {
+                        console.log('Setting nickname to:', data.username);
+                        setTimeout(() => {
+                            const nicknameInput = document.getElementById('nicknameInput');
+                            if (nicknameInput) {
+                                nicknameInput.value = data.username || 'Guest';
+                            }
+                        }, 100);
                     }
-                    // 닉네임을 username으로 자동 설정
-                    setTimeout(() => {
-                        const nicknameInput = document.getElementById('nicknameInput');
-                        if (nicknameInput) {
-                            console.log('Setting nickname to:', data.username);
-                            nicknameInput.value = data.username || 'Guest';
-                        } else {
-                            console.warn('nicknameInput element not found');
-                        }
-                    }, 100);
                 })
                 .catch(error => {
                     console.error('Failed to check login status:', error);
-                    // 오류 발생 시 로그인 페이지로 리다이렉트
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 500);
+                    // 에러 발생해도 계속 진행 (서버에서 이미 로그인 체크했으므로)
+                    console.log('Continuing despite error - server already validated login');
                 });
         }
 
