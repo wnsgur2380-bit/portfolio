@@ -375,8 +375,7 @@
 
             try {
                 const body = {
-                    full_name: fullName,
-                    email: email
+                    full_name: fullName
                 };
 
                 if (newPassword) {
@@ -386,6 +385,7 @@
 
                 const response = await fetch('/api/user-info', {
                     method: 'PUT',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -419,7 +419,8 @@
             if (!deleteConfirm) return;
 
             fetch('/api/user-info', {
-                method: 'DELETE'
+                method: 'DELETE',
+                credentials: 'include'
             })
             .then(res => res.json())
             .then(data => {

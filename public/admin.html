@@ -366,7 +366,8 @@
                         <tr>
                             <th>ID</th>
                             <th>제목</th>
-                            <th>작성자</th>
+                            <th>사용자명</th>
+                            <th>이름</th>
                             <th>조회수</th>
                             <th>작성일</th>
                             <th>작업</th>
@@ -384,7 +385,8 @@
                         <tr>
                             <th>ID</th>
                             <th>글</th>
-                            <th>작성자</th>
+                            <th>사용자명</th>
+                            <th>이름</th>
                             <th>내용</th>
                             <th>작성일</th>
                             <th>작업</th>
@@ -402,6 +404,7 @@
                     <input type="text" id="portfolioTitle" placeholder="제목" style="margin-bottom: 10px; padding: 8px; width: 100%; border: 1px solid #333; border-radius: 4px; box-sizing: border-box; background: rgba(255, 255, 255, 0.1); color: #fff;">
                     <textarea id="portfolioDescription" placeholder="설명" style="margin-bottom: 10px; padding: 8px; width: 100%; border: 1px solid #333; border-radius: 4px; height: 80px; box-sizing: border-box; background: rgba(255, 255, 255, 0.1); color: #fff;"></textarea>
                     <input type="text" id="portfolioTags" placeholder="태그 (쉼표로 구분: Node.js, React, ...)" style="margin-bottom: 10px; padding: 8px; width: 100%; border: 1px solid #333; border-radius: 4px; box-sizing: border-box; background: rgba(255, 255, 255, 0.1); color: #fff;">
+                    <input type="url" id="portfolioUrl" placeholder="프로젝트 URL (선택사항)" style="margin-bottom: 10px; padding: 8px; width: 100%; border: 1px solid #333; border-radius: 4px; box-sizing: border-box; background: rgba(255, 255, 255, 0.1); color: #fff;">
                     <div style="margin-bottom: 10px;">
                         <label style="display: block; margin-bottom: 5px; color: #fff;">포트폴리오 이미지</label>
                         <input type="file" id="portfolioImage" accept="image/*" style="margin-bottom: 10px; padding: 8px; width: 100%; border: 1px solid #333; border-radius: 4px; box-sizing: border-box; background: rgba(255, 255, 255, 0.1); color: #fff;">
@@ -564,14 +567,15 @@
                 const tbody = document.getElementById('postsList');
                 tbody.innerHTML = posts.map(post => `
                     <tr>
-                        <td>${post.post_id}</td>
-                        <td>${post.title}</td>
-                        <td>${post.full_name || post.username || '-'}</td>
+                        <td>${post.id}</td>
+                        <td><a href="javascript:viewPost(${post.id})" style="color: inherit; text-decoration: none; font-weight: bold; cursor: pointer;">${post.title}</a></td>
+                        <td>${post.username || '-'}</td>
+                        <td>${post.full_name || '-'}</td>
                         <td>${post.views}</td>
                         <td>${new Date(post.created_at).toLocaleDateString('ko-KR')}</td>
                         <td>
                             <div class="admin-actions">
-                                <button class="action-btn delete" onclick="deletePost(${post.post_id}, '${post.title}')">삭제</button>
+                                <button class="action-btn delete" onclick="deletePost(${post.id}, '${post.title}')">삭제</button>
                             </div>
                         </td>
                     </tr>
@@ -596,14 +600,15 @@
                 const tbody = document.getElementById('commentsList');
                 tbody.innerHTML = comments.map(comment => `
                     <tr>
-                        <td>${comment.comment_id}</td>
-                        <td>${comment.post_title || '-'}</td>
-                        <td>${comment.full_name || comment.username}</td>
-                        <td>${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}</td>
+                        <td>${comment.id}</td>
+                        <td><a href="javascript:viewPost(${comment.post_id})" style="color: inherit; text-decoration: none; font-weight: bold; cursor: pointer;">${comment.post_title || '-'}</a></td>
+                        <td>${comment.username || '-'}</td>
+                        <td>${comment.full_name || '-'}</td>
+                        <td><a href="javascript:viewPost(${comment.post_id})" style="color: inherit; text-decoration: none; font-weight: bold; cursor: pointer;">${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}</a></td>
                         <td>${new Date(comment.created_at).toLocaleDateString('ko-KR')}</td>
                         <td>
                             <div class="admin-actions">
-                                <button class="action-btn delete" onclick="deleteComment(${comment.comment_id})">삭제</button>
+                                <button class="action-btn delete" onclick="deleteComment(${comment.id})">삭제</button>
                             </div>
                         </td>
                     </tr>
@@ -712,13 +717,15 @@
                             <div style="flex: 1;">
                                 <h4 style="margin: 0 0 5px 0; color: #00d4ff;">${p.title}</h4>
                                 <p style="margin: 5px 0; color: #aaa; font-size: 14px;">${p.description}</p>
+                                ${p.image ? `<div style="margin: 10px 0;"><img src="${p.image}" alt="${p.title}" style="max-width: 200px; max-height: 150px; border-radius: 4px; cursor: ${p.project_url ? 'pointer' : 'default'};" onclick="${p.project_url ? `window.open('${p.project_url}', '_blank')` : ''}"></div>` : ''}
+                                ${p.project_url ? `<p style="margin: 5px 0; color: #00d4ff; font-size: 13px;"><a href="${p.project_url}" target="_blank" style="color: #00d4ff; text-decoration: underline;">🔗 프로젝트 링크</a></p>` : ''}
                                 <div style="margin-top: 10px;">
-                                    ${p.tags.map(tag => `<span style="display: inline-block; background: rgba(102, 126, 234, 0.2); padding: 3px 8px; border-radius: 3px; color: #667eea; margin-right: 5px; font-size: 12px;">${tag}</span>`).join('')}
+                                    ${Array.isArray(p.tags) ? p.tags.map(tag => `<span style="display: inline-block; background: rgba(102, 126, 234, 0.2); padding: 3px 8px; border-radius: 3px; color: #667eea; margin-right: 5px; font-size: 12px;">${tag}</span>`).join('') : ''}
                                 </div>
                             </div>
                             <div style="margin-left: 10px;">
-                                <button onclick="editPortfolio(${p.portfolio_id})" style="padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 5px; display: block;">수정</button>
-                                <button onclick="deletePortfolio(${p.portfolio_id})" style="padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">삭제</button>
+                                <button onclick="editPortfolio(${p.id})" style="padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 5px; display: block;">수정</button>
+                                <button onclick="deletePortfolio(${p.id})" style="padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">삭제</button>
                             </div>
                         </div>
                     </div>
@@ -732,6 +739,7 @@
             const title = document.getElementById('portfolioTitle').value.trim();
             const description = document.getElementById('portfolioDescription').value.trim();
             const tagsStr = document.getElementById('portfolioTags').value.trim();
+            const url = document.getElementById('portfolioUrl').value.trim();
             const imageFile = document.getElementById('portfolioImage').files[0];
 
             if (!title || !description) {
@@ -744,16 +752,55 @@
             try {
                 let imageData = null;
                 if (imageFile) {
-                    imageData = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve(reader.result);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(imageFile);
-                    });
+                    // 이미지 크기 체크 (5MB 이상이면 압축)
+                    if (imageFile.size > 5 * 1024 * 1024) {
+                        // 이미지 압축
+                        imageData = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                const img = new Image();
+                                img.onload = () => {
+                                    const c = document.createElement('canvas');
+                                    const maxWidth = 1200;
+                                    const maxHeight = 800;
+                                    let w = img.width;
+                                    let h = img.height;
+
+                                    if (w > h) {
+                                        if (w > maxWidth) {
+                                            h *= maxWidth / w;
+                                            w = maxWidth;
+                                        }
+                                    } else {
+                                        if (h > maxHeight) {
+                                            w *= maxHeight / h;
+                                            h = maxHeight;
+                                        }
+                                    }
+
+                                    c.width = w;
+                                    c.height = h;
+                                    c.getContext('2d').drawImage(img, 0, 0, w, h);
+                                    resolve(c.toDataURL('image/jpeg', 0.7));
+                                };
+                                img.onerror = reject;
+                                img.src = e.target.result;
+                            };
+                            reader.onerror = reject;
+                            reader.readAsDataURL(imageFile);
+                        });
+                    } else {
+                        imageData = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve(reader.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(imageFile);
+                        });
+                    }
                 }
 
-                const body = JSON.stringify({ title, description, tags, image: imageData });
-                console.log('Adding portfolio with:', { title, description, tags, hasImage: !!imageData });
+                const body = JSON.stringify({ title, description, tags, image: imageData, projectUrl: url });
+                console.log('Adding portfolio with:', { title, description, tags, url, hasImage: !!imageData });
                 
                 const response = await fetch('/api/admin/portfolio', {
                     method: 'POST',
@@ -771,6 +818,7 @@
                     document.getElementById('portfolioTitle').value = '';
                     document.getElementById('portfolioDescription').value = '';
                     document.getElementById('portfolioTags').value = '';
+                    document.getElementById('portfolioUrl').value = '';
                     document.getElementById('portfolioImage').value = '';
                     loadPortfolios();
                 } else {
@@ -788,12 +836,13 @@
             try {
                 const response = await fetch('/api/admin/portfolio');
                 const portfolios = await response.json();
-                const portfolio = portfolios.find(p => p.portfolio_id === portfolioId);
+                const portfolio = portfolios.find(p => p.id === portfolioId);
 
                 if (portfolio) {
                     document.getElementById('portfolioTitle').value = portfolio.title;
                     document.getElementById('portfolioDescription').value = portfolio.description;
                     document.getElementById('portfolioTags').value = portfolio.tags.join(', ');
+                    document.getElementById('portfolioUrl').value = portfolio.project_url || '';
                     editingPortfolioId = portfolioId;
                     
                     // 버튼 토글
@@ -826,6 +875,7 @@
             const title = document.getElementById('portfolioTitle').value.trim();
             const description = document.getElementById('portfolioDescription').value.trim();
             const tagsStr = document.getElementById('portfolioTags').value.trim();
+            const url = document.getElementById('portfolioUrl').value.trim();
             const imageFile = document.getElementById('portfolioImage').files[0];
 
             if (!title || !description) {
@@ -851,7 +901,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ title, description, tags, image: imageData })
+                    body: JSON.stringify({ title, description, tags, image: imageData, projectUrl: url })
                 });
 
                 if (response.ok) {
@@ -859,6 +909,7 @@
                     document.getElementById('portfolioTitle').value = '';
                     document.getElementById('portfolioDescription').value = '';
                     document.getElementById('portfolioTags').value = '';
+                    document.getElementById('portfolioUrl').value = '';
                     document.getElementById('portfolioImage').value = '';
                     editingPortfolioId = null;
                     
@@ -898,6 +949,9 @@
             }
         }
 
+        function viewPost(postId) {
+            window.location.href = `/post-view.html?id=${postId}`;
+        }
 
         // User Edit Modal Functions
         let editingUserId = null;

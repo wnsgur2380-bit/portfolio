@@ -350,10 +350,11 @@
 
                 container.innerHTML = posts.map(post => {
                     const date = new Date(post.created_at).toLocaleDateString('ko-KR');
+                    const author = post.full_name || post.username || '익명';
                     return `
                         <div class="board-item" onclick="viewPost(${post.id})">
                             <div class="board-item-title">${post.title}</div>
-                            <div class="board-item-author">${post.author}</div>
+                            <div class="board-item-author">${author}</div>
                             <div class="board-item-date">${date}</div>
                             <div class="board-item-views">${post.views} 조회</div>
                         </div>

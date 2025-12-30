@@ -324,10 +324,11 @@ app.get('/api/posts', async (req, res) => {
     try {
         const conn = await pool.getConnection();
         const [posts] = await conn.query(
-            `SELECT post_id as id, title, author, content, views, 
-                    created_at, updated_at
-             FROM posts
-             ORDER BY created_at DESC`
+            `SELECT p.id, p.title, u.username, u.full_name, p.content, p.views, 
+                    p.created_at, p.updated_at
+             FROM post p
+             LEFT JOIN user u ON p.user_id = u.id
+             ORDER BY p.created_at DESC`
         );
         conn.release();
 
@@ -346,12 +347,13 @@ app.get('/api/posts/:id', async (req, res) => {
         const conn = await pool.getConnection();
 
         // Increment views
-        await conn.query('UPDATE posts SET views = views + 1 WHERE post_id = ?', [id]);
+        await conn.query('UPDATE post SET views = views + 1 WHERE id = ?', [id]);
 
         // Get post
         const [posts] = await conn.query(
-            `SELECT * FROM posts
-             WHERE post_id = ?`,
+            `SELECT p.*, u.username, u.full_name FROM post p
+             LEFT JOIN user u ON p.user_id = u.id
+             WHERE p.id = ?`,
             [id]
         );
         conn.release();
@@ -382,9 +384,9 @@ app.post('/api/posts', async (req, res) => {
     try {
         const conn = await pool.getConnection();
         await conn.query(
-            `INSERT INTO posts (author, password, title, content, created_at, updated_at)
-             VALUES (?, ?, ?, ?, NOW(), NOW())`,
-            [req.session.full_name, '', title, content]
+            `INSERT INTO post (title, content, user_id, created_at, updated_at)
+             VALUES (?, ?, ?, NOW(), NOW())`,
+            [title, content, req.session.user_id]
         );
         conn.release();
 
@@ -409,7 +411,7 @@ app.put('/api/posts/:id', async (req, res) => {
 
         // Check if user is author
         const [posts] = await conn.query(
-            'SELECT author FROM posts WHERE post_id = ?',
+            'SELECT user_id FROM post WHERE id = ?',
             [id]
         );
 
@@ -418,13 +420,13 @@ app.put('/api/posts/:id', async (req, res) => {
             return res.status(404).json({ error: '포스트를 찾을 수 없습니다.' });
         }
 
-        if (posts[0].author !== req.session.full_name) {
+        if (posts[0].user_id !== req.session.user_id) {
             conn.release();
             return res.status(403).json({ error: '수정 권한이 없습니다.' });
         }
 
         await conn.query(
-            'UPDATE posts SET title = ?, content = ?, updated_at = NOW() WHERE post_id = ?',
+            'UPDATE post SET title = ?, content = ?, updated_at = NOW() WHERE id = ?',
             [title, content, id]
         );
         conn.release();
@@ -449,7 +451,7 @@ app.delete('/api/posts/:id', async (req, res) => {
 
         // Check if user is author
         const [posts] = await conn.query(
-            'SELECT author FROM posts WHERE post_id = ?',
+            'SELECT user_id FROM post WHERE id = ?',
             [id]
         );
 
@@ -458,12 +460,12 @@ app.delete('/api/posts/:id', async (req, res) => {
             return res.status(404).json({ error: '포스트를 찾을 수 없습니다.' });
         }
 
-        if (posts[0].author !== req.session.full_name) {
+        if (posts[0].user_id !== req.session.user_id) {
             conn.release();
             return res.status(403).json({ error: '삭제 권한이 없습니다.' });
         }
 
-        await conn.query('DELETE FROM posts WHERE post_id = ?', [id]);
+        await conn.query('DELETE FROM post WHERE id = ?', [id]);
         conn.release();
 
         res.json({ success: true, message: '포스트가 삭제되었습니다.' });
@@ -480,9 +482,9 @@ app.get('/api/posts/:id/comments', async (req, res) => {
     try {
         const conn = await pool.getConnection();
         const [comments] = await conn.query(
-            `SELECT c.comment_id, c.post_id, c.user_id, u.username, u.full_name, 
+            `SELECT c.id, c.post_id, c.user_id, u.username, u.full_name, 
                     c.content, c.created_at, c.updated_at
-             FROM comments c
+             FROM comment c
              JOIN user u ON c.user_id = u.id
              WHERE c.post_id = ?
              ORDER BY c.created_at ASC`,
@@ -514,14 +516,14 @@ app.post('/api/posts/:id/comments', async (req, res) => {
         const conn = await pool.getConnection();
         
         // Check if post exists
-        const [posts] = await conn.query('SELECT post_id FROM posts WHERE post_id = ?', [id]);
+        const [posts] = await conn.query('SELECT id FROM post WHERE id = ?', [id]);
         if (posts.length === 0) {
             conn.release();
             return res.status(404).json({ error: '포스트를 찾을 수 없습니다.' });
         }
 
         await conn.query(
-            'INSERT INTO comments (post_id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())',
+            'INSERT INTO comment (post_id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())',
             [id, req.session.user_id, content]
         );
         conn.release();
@@ -551,7 +553,7 @@ app.put('/api/comments/:id', async (req, res) => {
 
         // Check if comment exists and user is author
         const [comments] = await conn.query(
-            'SELECT user_id FROM comments WHERE comment_id = ?',
+            'SELECT user_id FROM comment WHERE id = ?',
             [id]
         );
 
@@ -566,7 +568,7 @@ app.put('/api/comments/:id', async (req, res) => {
         }
 
         await conn.query(
-            'UPDATE comments SET content = ?, updated_at = NOW() WHERE comment_id = ?',
+            'UPDATE comment SET content = ?, updated_at = NOW() WHERE id = ?',
             [content, id]
         );
         conn.release();
@@ -591,7 +593,7 @@ app.delete('/api/comments/:id', async (req, res) => {
 
         // Check if comment exists and user is author
         const [comments] = await conn.query(
-            'SELECT user_id FROM comments WHERE comment_id = ?',
+            'SELECT user_id FROM comment WHERE id = ?',
             [id]
         );
 
@@ -605,7 +607,7 @@ app.delete('/api/comments/:id', async (req, res) => {
             return res.status(403).json({ error: '삭제 권한이 없습니다.' });
         }
 
-        await conn.query('DELETE FROM comments WHERE comment_id = ?', [id]);
+        await conn.query('DELETE FROM comment WHERE id = ?', [id]);
         conn.release();
 
         res.json({ success: true, message: '댓글이 삭제되었습니다.' });
@@ -703,9 +705,8 @@ app.get('/api/admin/posts', async (req, res) => {
     try {
         const conn = await pool.getConnection();
         const [posts] = await conn.query(
-            `SELECT p.post_id, p.title, u.username, u.full_name, 
-                    p.views, p.created_at, p.updated_at
-             FROM posts p
+            `SELECT p.id, p.title, p.user_id, u.username, u.full_name, p.created_at, p.updated_at, p.views
+             FROM post p
              LEFT JOIN user u ON p.user_id = u.id
              ORDER BY p.created_at DESC`
         );
@@ -728,7 +729,7 @@ app.delete('/api/admin/posts/:id', async (req, res) => {
 
     try {
         const conn = await pool.getConnection();
-        await conn.query('DELETE FROM posts WHERE post_id = ?', [id]);
+        await conn.query('DELETE FROM post WHERE id = ?', [id]);
         conn.release();
 
         res.json({ success: true, message: '글이 삭제되었습니다.' });
@@ -747,11 +748,10 @@ app.get('/api/admin/comments', async (req, res) => {
     try {
         const conn = await pool.getConnection();
         const [comments] = await conn.query(
-            `SELECT c.comment_id, c.post_id, p.title as post_title,
-                    u.username, u.full_name, c.content, c.created_at
-             FROM comments c
-             LEFT JOIN posts p ON c.post_id = p.post_id
+            `SELECT c.id, c.content, c.user_id, c.post_id, u.username, u.full_name, p.title as post_title, c.created_at
+             FROM comment c
              LEFT JOIN user u ON c.user_id = u.id
+             LEFT JOIN post p ON c.post_id = p.id
              ORDER BY c.created_at DESC`
         );
         conn.release();
@@ -773,7 +773,7 @@ app.delete('/api/admin/comments/:id', async (req, res) => {
 
     try {
         const conn = await pool.getConnection();
-        await conn.query('DELETE FROM comments WHERE comment_id = ?', [id]);
+        await conn.query('DELETE FROM comment WHERE id = ?', [id]);
         conn.release();
 
         res.json({ success: true, message: '댓글이 삭제되었습니다.' });
@@ -891,19 +891,26 @@ app.get('/api/portfolio', async (req, res) => {
     try {
         const conn = await pool.getConnection();
         const [portfolios] = await conn.query(
-            `SELECT portfolio_id, title, description, tags, image
-             FROM portfolio 
-             ORDER BY portfolio_id ASC`
+            `SELECT id, title, description, image_path as image, project_url, tags
+             FROM portfolio_item 
+             ORDER BY id ASC`
         );
         conn.release();
 
-        // Parse tags from JSON string
-        const formattedPortfolios = portfolios.map(p => ({
+        // Parse tags JSON with error handling
+        const result = portfolios.map(p => ({
             ...p,
-            tags: typeof p.tags === 'string' ? JSON.parse(p.tags) : p.tags
+            tags: p.tags ? (() => {
+                try {
+                    const parsed = typeof p.tags === 'string' ? JSON.parse(p.tags) : p.tags;
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (e) {
+                    return [];
+                }
+            })() : []
         }));
 
-        res.json(formattedPortfolios);
+        res.json(result);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: '포트폴리오 조회 중 오류가 발생했습니다.' });
@@ -919,18 +926,26 @@ app.get('/api/admin/portfolio', async (req, res) => {
     try {
         const conn = await pool.getConnection();
         const [portfolios] = await conn.query(
-            `SELECT portfolio_id, title, description, tags, image
-             FROM portfolio 
-             ORDER BY portfolio_id ASC`
+            `SELECT id, title, description, image_path as image, project_url, tags
+             FROM portfolio_item 
+             ORDER BY id ASC`
         );
         conn.release();
 
-        const formattedPortfolios = portfolios.map(p => ({
+        // Parse tags JSON with error handling
+        const result = portfolios.map(p => ({
             ...p,
-            tags: typeof p.tags === 'string' ? JSON.parse(p.tags) : p.tags
+            tags: p.tags ? (() => {
+                try {
+                    const parsed = typeof p.tags === 'string' ? JSON.parse(p.tags) : p.tags;
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (e) {
+                    return [];
+                }
+            })() : []
         }));
 
-        res.json(formattedPortfolios);
+        res.json(result);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: '포트폴리오 조회 중 오류가 발생했습니다.' });
@@ -943,7 +958,7 @@ app.post('/api/admin/portfolio', async (req, res) => {
         return res.status(403).json({ error: '관리자만 접근 가능합니다.' });
     }
 
-    const { title, description, tags, image } = req.body;
+    const { title, description, tags, image, projectUrl } = req.body;
 
     if (!title || !description) {
         return res.status(400).json({ error: '제목과 설명은 필수입니다.' });
@@ -951,12 +966,13 @@ app.post('/api/admin/portfolio', async (req, res) => {
 
     try {
         const conn = await pool.getConnection();
-        const tagsJson = JSON.stringify(tags || []);
+        
+        const tagsJson = tags && Array.isArray(tags) ? JSON.stringify(tags) : null;
         
         await conn.query(
-            `INSERT INTO portfolio (title, description, tags, image) 
-             VALUES (?, ?, ?, ?)`,
-            [title, description, tagsJson, image || null]
+            `INSERT INTO portfolio_item (title, description, image_path, project_url, tags) 
+             VALUES (?, ?, ?, ?, ?)`,
+            [title, description, image || null, projectUrl || '', tagsJson]
         );
         
         conn.release();
@@ -974,7 +990,7 @@ app.put('/api/admin/portfolio/:id', async (req, res) => {
     }
 
     const { id } = req.params;
-    const { title, description, tags, image } = req.body;
+    const { title, description, tags, image, projectUrl } = req.body;
 
     if (!title || !description) {
         return res.status(400).json({ error: '제목과 설명은 필수입니다.' });
@@ -982,13 +998,14 @@ app.put('/api/admin/portfolio/:id', async (req, res) => {
 
     try {
         const conn = await pool.getConnection();
-        const tagsJson = JSON.stringify(tags || []);
+        
+        const tagsJson = tags && Array.isArray(tags) ? JSON.stringify(tags) : null;
         
         await conn.query(
-            `UPDATE portfolio 
-             SET title = ?, description = ?, tags = ?, image = ?, updated_at = NOW()
-             WHERE portfolio_id = ?`,
-            [title, description, tagsJson, image || null, id]
+            `UPDATE portfolio_item 
+             SET title = ?, description = ?, image_path = ?, tags = ?, project_url = ?
+             WHERE id = ?`,
+            [title, description, image || null, tagsJson, projectUrl || '', id]
         );
         
         conn.release();
@@ -1009,7 +1026,7 @@ app.delete('/api/admin/portfolio/:id', async (req, res) => {
 
     try {
         const conn = await pool.getConnection();
-        await conn.query('DELETE FROM portfolio WHERE portfolio_id = ?', [id]);
+        await conn.query('DELETE FROM portfolio_item WHERE id = ?', [id]);
         conn.release();
 
         res.json({ success: true, message: '포트폴리오가 삭제되었습니다.' });

@@ -551,7 +551,7 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        let postId = window.location.pathname.split('/').pop();
+        let postId = urlParams.get('id') || window.location.pathname.split('/').pop();
         let currentPost = null;
 
         // Check login status and update nav
@@ -572,7 +572,7 @@
                 // Set title and metadata
                 document.getElementById('postTitle').textContent = post.title;
                 document.getElementById('postTitleBreadcrumb').textContent = post.title.substring(0, 30) + (post.title.length > 30 ? '...' : '');
-                document.getElementById('postAuthor').textContent = post.author;
+                document.getElementById('postAuthor').textContent = post.full_name || post.username || '익명';
                 document.getElementById('postDate').textContent = formatDate(post.created_at);
                 document.getElementById('postViews').textContent = post.views;
 
@@ -594,7 +594,7 @@
                 const response = await fetch('/api/user-info');
                 if (response.ok) {
                     const user = await response.json();
-                    if (user.username === currentPost.author) {
+                    if (user.id === currentPost.user_id) {
                         const actionsDiv = document.getElementById('postActions');
                         actionsDiv.innerHTML = `
                             <button class="action-button" onclick="openEditModal()">

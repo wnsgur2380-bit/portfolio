@@ -103,7 +103,7 @@
                     <div class="timeline-content">
                         <h3>개발자 교육 과정</h3>
                         <p class="company">웹 개발 부트캠프</p>
-                        <p class="date">2024 - 현재</p>
+                        <p class="date">2025 - 현재</p>
                         <p class="description">
                             HTML/CSS/JavaScript부터 React, Node.js까지 
                             풀스택 웹 개발을 체계적으로 학습 중
@@ -116,7 +116,7 @@
                     <div class="timeline-content">
                         <h3>팀 프로젝트 경험</h3>
                         <p class="company">부트캠프 팀 프로젝트</p>
-                        <p class="date">2024</p>
+                        <p class="date">2025</p>
                         <p class="description">
                             팀과 협업하여 실제 서비스 구현,
                             커뮤니케이션과 협업의 중요성 학습
@@ -129,7 +129,7 @@
                     <div class="timeline-content">
                         <h3>포트폴리오 프로젝트</h3>
                         <p class="company">개인 프로젝트</p>
-                        <p class="date">2024</p>
+                        <p class="date">2025</p>
                         <p class="description">
                             포트폴리오 웹사이트 직접 설계 및 구현,
                             배포와 버전 관리 경험 보유
@@ -150,50 +150,26 @@
             <div class="projects-grid">
                 <div class="project-card">
                     <div class="project-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3>AI 기반 CCTV 분석</h3>
+                    <p>YOLOv8를 활용한 실시간 영상 분석 및 객체 감지 시스템</p>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-icon">
                         <i class="fas fa-comments"></i>
                     </div>
-                    <h3>실시간 채팅</h3>
+                    <h3>실시간 웹 채팅</h3>
                     <p>WebSocket 기반의 실시간 다중 사용자 채팅 시스템</p>
                 </div>
 
                 <div class="project-card">
                     <div class="project-icon">
-                        <i class="fas fa-shopping-cart"></i>
+                        <i class="fas fa-graduation-cap"></i>
                     </div>
-                    <h3>전자상거래</h3>
-                    <p>결제 시스템이 통합된 온라인 쇼핑 플랫폼</p>
-                </div>
-
-                <div class="project-card">
-                    <div class="project-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <h3>블로그 시스템</h3>
-                    <p>콘텐츠 관리 시스템이 탑재된 블로그 플랫폼</p>
-                </div>
-
-                <div class="project-card">
-                    <div class="project-icon">
-                        <i class="fas fa-chart-bar"></i>
-                    </div>
-                    <h3>데이터 대시보드</h3>
-                    <p>실시간 데이터 시각화 및 분석 대시보드</p>
-                </div>
-
-                <div class="project-card">
-                    <div class="project-icon">
-                        <i class="fas fa-video"></i>
-                    </div>
-                    <h3>비디오 스트리밍</h3>
-                    <p>온디맨드 비디오 스트리밍 플랫폼</p>
-                </div>
-
-                <div class="project-card">
-                    <div class="project-icon">
-                        <i class="fas fa-map"></i>
-                    </div>
-                    <h3>위치 기반 서비스</h3>
-                    <p>지도 기반 위치 추적 및 공유 서비스</p>
+                    <h3>학습 관리 시스템 (LMS)</h3>
+                    <p>온라인 교육과정 관리 및 학습자 진도 추적 플랫폼</p>
                 </div>
             </div>
         </div>
@@ -215,7 +191,7 @@
                         <i class="fas fa-envelope"></i>
                         <div>
                             <h4>이메일</h4>
-                            <p>contact@myworks.com</p>
+                            <p>wnsgur5804@naver.com</p>
                         </div>
                     </div>
 
@@ -223,7 +199,7 @@
                         <i class="fas fa-phone"></i>
                         <div>
                             <h4>전화</h4>
-                            <p>+82 10-1234-5678</p>
+                            <p>+82 10-9924-2380</p>
                         </div>
                     </div>
 
@@ -231,7 +207,7 @@
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
                             <h4>위치</h4>
-                            <p>서울, 대한민국</p>
+                            <p>대구, 대한민국</p>
                         </div>
                     </div>
                 </div>
@@ -368,11 +344,13 @@
                 
                 grid.innerHTML = portfolios.map(p => `
                     <div class="portfolio-item">
-                        <div class="portfolio-image" style="background-image: ${p.image ? `url('${p.image}')` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}; background-size: cover; background-position: center;">
-                            <div class="portfolio-overlay">
-                                <a href="#" class="portfolio-link">자세히 보기</a>
+                        <a href="${p.project_url && p.project_url.trim() ? p.project_url : '#'}" ${p.project_url && p.project_url.trim() ? 'target="_blank"' : 'onclick="return false;"'} style="text-decoration: none; color: inherit; display: block;">
+                            <div class="portfolio-image" style="background-image: ${p.image ? `url('${p.image}')` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}; background-size: cover; background-position: center; cursor: pointer;">
+                                <div class="portfolio-overlay">
+                                    <span class="portfolio-link">자세히 보기</span>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                         <div class="portfolio-info">
                             <h3>${p.title}</h3>
                             <p>${p.description}</p>
