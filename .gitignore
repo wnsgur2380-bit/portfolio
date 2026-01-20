@@ -34,9 +34,6 @@ build/
 
 # Uploads & temp files
 uploads/
-*.db
-ai_analysis.db
-ai_analysis_v*.db
 gait_db/
 
 # Build artifacts
