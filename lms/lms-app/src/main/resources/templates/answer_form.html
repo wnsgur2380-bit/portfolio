@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>답변 수정</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <div class="container my-4">
+        <h2 class="fw-bold my-4">답변 수정</h2>
+        
+        <form th:action="@{|/answer/modify/${boardAnswId}|}" 
+              th:object="${boardAnswerForm}" method="post">
+            
+            <div th:if="${#fields.hasAnyErrors()}">
+                <div class="alert alert-danger" role="alert">
+                    <ul class="mb-0">
+                        <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="answContent" class="form-label">내용</label>
+                <textarea th:field="*{answContent}" class="form-control" rows="10"></textarea>
+            </div>
+            
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">수정 완료</button>
+                
+                <a th:href="@{|/question/detail/${questionId}|}" class="btn btn-secondary">
+                    취소
+                </a>
+            </div>
+        </form>
+    </div>
+</th:block>
+</body>
+</html>

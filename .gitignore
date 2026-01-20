@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+venv/
+env/
+.venv
+*.pyc
+__pycache__/
+.Python
+
+# Build outputs
+build/
+dist/
+*.egg-info/
+.gradle/
+build/
+*.class
+*.jar
+*.war
+*.nar
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Uploads & temp files
+uploads/
+*.db
+ai_analysis.db
+ai_analysis_v*.db
+gait_db/
+
+# Build artifacts
+aiblur/aiblur-build/
+lms/build/
+lms/.gradle/
+lms/.settings/
+lms/bin/
+
+# System files
+.classpath
+.project
+.settings/

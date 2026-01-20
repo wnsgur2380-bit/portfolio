@@ -1,0 +1,48 @@
+<!-- templates/sidebar.html -->
+<div th:fragment="sidebarFragment(currentURI, activeMenu)">
+	
+	<!-- 관리자 전용: 회원 관리 -->
+	<div sec:authorize="hasRole('ROLE_ADMIN')">
+		<h4 class="mb-3 fw-bold">회원관리</h4>
+		<div class="list-group">
+
+			<!-- 예시: 사이드바 항목 - 사용자 관리 -->
+			<a th:href="@{/user/list}" class="list-group-item list-group-item-action"
+				th:classappend="${activeMenu == 'user-list'} ? ' active' : ''">사용자 목록</a>
+
+			<a th:href="@{/user/list/unapproved}" class="list-group-item list-group-item-action"
+				th:classappend="${activeMenu == 'user-unapproved'} ? ' active' : ''">비승인 강사
+				목록</a>
+
+			<a th:href="@{/user/list/dormant}" class="list-group-item list-group-item-action"
+				th:classappend="${activeMenu == 'user-dormant'} ? ' active' : ''">휴면 회원 관리</a>
+		</div>
+	</div>
+
+	<!-- 강사 전용: 마이페이지 -->
+	<div sec:authorize="hasRole('ROLE_INSTRUCTOR')">
+		<h4 class="mb-3 fw-bold">마이페이지</h4>
+		<div class="list-group">
+			<!-- 내 강의 관리 -->
+			<a th:href="@{/instructor/classes}" class="list-group-item list-group-item-action"
+				th:classappend="${activeMenu == 'classes'} ? ' active' : ''">강의목록</a>
+
+			<!-- 내 강의 질문 -->
+			<a th:href="@{/instructor/mypage/questions}" class="list-group-item list-group-item-action"
+				th:classappend="${activeMenu == 'questions'} ? ' active' : ''">내 강의 질문</a>
+
+			<!-- 내 정보 수정 -->
+			<a th:href="@{/user/modify}" class="list-group-item list-group-item-action"
+				th:classappend="${activeMenu == 'modify'} ? ' active' : ''">내 정보 수정</a>
+		</div>
+	</div>
+
+	<!-- 공통: 테스트 관리 -->
+	<div sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_INSTRUCTOR')">
+		<h4 class="mt-5 mb-3 fw-bold">테스트 관리</h4>
+		<div class="list-group">
+			<a th:href="@{/instructor/quiz/list}" class="list-group-item list-group-item-action"
+				th:classappend="${activeMenu == 'quiz'} ? ' active' : ''">테스트 목록</a>
+		</div>
+	</div>
+</div>

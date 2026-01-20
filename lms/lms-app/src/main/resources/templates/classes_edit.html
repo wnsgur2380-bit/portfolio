@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>강의 수정</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <div class="container my-4">
+        <h2 class="fw-bold my-4">강의 수정</h2>
+
+        <form th:action="@{/classes/edit/{id}(id=${classesId})}" th:object="${classesForm}" method="post">
+            
+            <div th:if="${#fields.hasAnyErrors()}">
+                <div class="alert alert-danger" role="alert">
+                    <ul class="mb-0">
+                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li> 
+                        <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="title" class="form-label">강의 제목</label>
+                <input type="text" th:field="*{title}" class="form-control" id="title"> 
+            </div>
+
+            <div class="mb-3">
+                <label for="classesContent" class="form-label">강의 내용</label>
+                <textarea th:field="*{classesContent}" class="form-control" id="classesContent" rows="5"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="levelId" class="form-label">강의 레벨</label>
+                <select th:field="*{levelId}" class="form-select" id="levelId">
+                    <option value="">-- 레벨 선택 --</option>
+                    <option th:each="level : ${levels}" 
+                            th:value="${level.levelId}" 
+                            th:text="${level.levelName}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="classesImg" class="form-label">강의 이미지 URL</label>
+                <input type="text" th:field="*{classesImg}" class="form-control" id="classesImg" placeholder="http://... 또는 /images/...">
+            </div>
+            
+            <div class="mb-3">
+                <label for="classesVideo" class="form-label">강의 비디오 URL</label>
+                <input type="text" th:field="*{classesVideo}" class="form-control" id="classesVideo" placeholder="http://youtube.com/...">
+            </div>
+
+            <div class="text-end mt-4">
+                <button type="submit" class="btn btn-primary">수정 완료</button>
+                <a th:href="@{/classes/{id}(id=${classesId})}" class="btn btn-secondary">취소</a> 
+            </div>
+        </form>
+    </div>
+</th:block>
+</body>
+</html>

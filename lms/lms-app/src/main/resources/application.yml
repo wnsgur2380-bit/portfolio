@@ -1,0 +1,15 @@
+server:
+  port: 8989
+
+toss:
+  secret-key: test_sk_5OWRapdA8dvaJ2GK9zzBVo1zEqZK
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true

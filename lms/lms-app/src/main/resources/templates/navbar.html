@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+
+<body>
+	<nav th:fragment="navbarFragment" class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+		<div class="container">
+
+			<a class="navbar-brand fw-bold d-flex align-items-center" th:href="@{/mainpage}">
+				<img src="https://raw.githubusercontent.com/jhjeong2380/jh/main/logo_lms.png" alt="입트영 로고"
+					style="height: 30px;" class="me-2">
+				<span>입트영</span>
+			</a>
+
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav ms-auto">
+
+					<li class="nav-item" sec:authorize="hasRole('ROLE_LEARNER')">
+						<a class="nav-link text-warning fw-bold" th:href="@{/api/payments/membership}"
+							th:if="${(user == null or !user.isPaid) and (currentUser == null or !currentUser.isPaid)}">
+							<i class="bi bi-gem"></i> 멤버십 결제
+						</a>
+					</li>
+
+					<li class="nav-item" sec:authorize="isAuthenticated()">
+						<a class="nav-link" th:href="@{/classes/list}">강의 목록</a>
+					</li>
+					<li class="nav-item" sec:authorize="isAuthenticated()">
+						<a class="nav-link" th:href="@{/question/list}">게시판</a>
+					</li>
+					<li class="nav-item" sec:authorize="hasRole('ROLE_INSTRUCTOR')">
+						<a class="nav-link" th:href="@{/classes/create}">강의 등록</a>
+					</li>
+
+
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="bi bi-person-circle me-1"></i>
+							<span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
+							<span sec:authorize="isAuthenticated()">님</span>
+							<span sec:authorize="!isAuthenticated()">비회원</span>
+						</a>
+
+						<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+							<li sec:authorize="!isAuthenticated()">
+								<a class="dropdown-item" th:href="@{/user/login}">로그인</a>
+							</li>
+							<li sec:authorize="!isAuthenticated()">
+								<a class="dropdown-item" th:href="@{/user/signup}">회원가입</a>
+							</li>
+
+							<li class="nav-item" sec:authorize="isAuthenticated()">
+								<a class="nav-link" sec:authorize="hasRole('ROLE_LEARNER')"
+									th:href="@{/enrollment/user}" style="padding-left: 15px;">
+									마이페이지<br>(강의실)
+								</a>
+								<a class="nav-link" sec:authorize="hasRole('ROLE_INSTRUCTOR')"
+									th:href="@{/instructor/mypage}">
+									마이페이지 (강사)
+								</a>
+								<a class="nav-link" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/user/list}"
+									style="padding-left: 15px;">
+									관리자페이지
+								</a>
+							</li>
+
+							<li sec:authorize="isAuthenticated()">
+								<hr class="dropdown-divider"
+									sec:authorize="hasAnyRole('ROLE_LEARNER', 'ROLE_INSTRUCTOR', 'ROLE_ADMIN')">
+							</li>
+							<li sec:authorize="isAuthenticated()">
+								<a class="dropdown-item" th:href="@{/user/logout}">로그아웃</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+</body>
+
+</html>

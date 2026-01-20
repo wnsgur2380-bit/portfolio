@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+
+<th:block layout:fragment="content">
+	<div class="container my-4">
+		<div class="row">
+
+			<!-- 본문 콘텐츠 -->
+			<div th:class="${currentURI != null and (#strings.startsWith(currentURI, '/user') 
+										or #strings.startsWith(currentURI, '/instructor') 
+										or #strings.startsWith(currentURI, '/instructor/quiz'))} ? 'col-lg-9' : 'col-12'">
+				<th:block layout:fragment="mypage_content"></th:block>
+			</div>
+		</div>
+	</div>
+	</div>
+</th:block>
+
+</html>

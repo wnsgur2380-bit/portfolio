@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${questionId != null} ? '문제 수정' : '새 문제 등록'"></title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <div class="container my-4">
+        
+        <a th:href="@{/instructor/quiz/{id}/questions(id=${quizQuestionForm.quizId})}" class="text-decoration-none text-muted">
+			<i class="bi bi-arrow-left"></i> 
+			<span th:text="${quiz?.quizTitle} ?: '문제 목록으로'"></span>
+		</a>
+        <h2 class="fw-bold my-4" th:text="${questionId != null} ? '문제 수정' : '새 문제 등록'"></h2>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                
+                <form th:action="${questionId != null} ? @{/instructor/question/edit/{id}(id=${questionId})} : @{/instructor/quiz/{id}/question/create(id=*{quizId})}" 
+                      th:object="${quizQuestionForm}" 
+                      method="post">
+                    
+                    <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+                    
+                    <input type="hidden" th:field="*{quizId}" />
+                    
+                    <div class="mb-3">
+                        <label for="quizContent" class="form-label fw-bold">문제 내용</label>
+                        <textarea th:field="*{quizContent}" class="form-control" rows="4" required></textarea>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('quizContent')}" th:errors="*{quizContent}"></div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="option1" class="form-label">보기 1</label>
+                            <input type="text" th:field="*{option1}" class="form-control" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('option1')}" th:errors="*{option1}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="option2" class="form-label">보기 2</label>
+                            <input type="text" th:field="*{option2}" class="form-control" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('option2')}" th:errors="*{option2}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="option3" class="form-label">보기 3</label>
+                            <input type="text" th:field="*{option3}" class="form-control" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('option3')}" th:errors="*{option3}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="option4" class="form-label">보기 4</label>
+                            <input type="text" th:field="*{option4}" class="form-control" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('option4')}" th:errors="*{option4}"></div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                         <div class="col-md-8">
+                            <label for="correctAnswer" class="form-label fw-bold">정답</label>
+                            <input type="text" th:field="*{correctAnswer}" class="form-control" 
+                                   placeholder="보기 1~4의 텍스트와 정확히 일치해야 합니다." required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('correctAnswer')}" th:errors="*{correctAnswer}"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="score" class="form-label fw-bold">배점</label>
+                            <input type="number" th:field="*{score}" class="form-control" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('score')}" th:errors="*{score}"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-primary" th:text="${questionId != null} ? '수정 완료' : '등록하기'"></button>
+                        <a th:href="@{/instructor/quiz/{id}/questions(id=*{quizId})}" class="btn btn-secondary">취소</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

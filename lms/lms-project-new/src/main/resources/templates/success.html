@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>결제 완료</title>
+</head>
+<body>
+  <section class="container" style="text-align:center; margin-top:50px;">
+    <h1>🎉 결제가 완료되었습니다!</h1>
+    <p>감사합니다. 아래 버튼을 눌러 강의를 바로 수강할 수 있습니다.</p>
+
+    <div style="margin-top:30px;">
+      <a href="/my/lectures" class="btn btn-primary">내 강의실로 이동</a>
+      <a href="/" class="btn btn-secondary" style="margin-left:10px;">홈으로 돌아가기</a>
+    </div>
+
+    <div style="margin-top:40px; color:gray; font-size:14px;">
+      <p th:text="'주문번호 : ' + ${orderId}"></p>
+      <p th:text="'결제금액 : ' + ${#numbers.formatInteger(amount, 3, 'COMMA')} + '원'"></p>
+    </div>
+  </section>
+</body>
+</html>

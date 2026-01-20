@@ -1,0 +1,19 @@
+{
+  "name": "aiblur-backend",
+  "version": "1.0.0",
+  "description": "AI Blur - Image Background Blur Service Backend",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js"
+  },
+  "keywords": ["ai", "blur", "image", "processing"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

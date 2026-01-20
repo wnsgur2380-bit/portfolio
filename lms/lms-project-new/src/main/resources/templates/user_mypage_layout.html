@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"> <!-- 1. 메인 레이아웃을 사용합니다. -->
+
+<!-- 2. 메인 layout.html의 'content' 프래그먼트 영역을 채웁니다. -->
+<th:block layout:fragment="content">
+    <div class="container my-4">
+        <div class="row">
+            
+            <!-- ▼▼▼ [ 사이드바 디자인 수정 ] ▼▼▼ -->
+            <!-- 1. 사이드바 (col-md-3 -> col-lg-3) -->
+            <!--    (user_mypage_layout.html의 구조와 동일하게 변경) -->
+            <div class="col-lg-3">
+                <h4 class="mb-3 fw-bold">마이페이지</h4>
+                <div class="list-group shadow-sm"> <!-- card 대신 list-group에 shadow 적용 -->
+                    
+                    <!-- 1. 내 강의 관리 -->
+                    <a th:href="@{/instructor/classes}" 
+                       class="list-group-item list-group-item-action"
+                       th:classappend="${activeMenu == 'classes'} ? 'active' : ''">
+                       <i class="bi bi-journal-album me-2"></i>내 강의 관리
+                    </a>
+
+                    <!-- 2. 내 강의 질문 -->
+                    <a th:href="@{/instructor/mypage/questions}" 
+                       class="list-group-item list-group-item-action"
+                       th:classappend="${activeMenu == 'questions'} ? 'active' : ''">
+                       <i class="bi bi-chat-left-text me-2"></i>내 강의 질문
+                    </a>
+                    
+                    <!-- 3. 내 정보 수정 -->
+                    <a th:href="@{/user/modify}" <!-- 링크는 /user/modify를 바라봄 -->
+                       class="list-group-item list-group-item-action"
+                       th:classappend="${activeMenu == 'modify'} ? 'active' : ''">
+                        <i class="bi bi-person-lines-fill me-2"></i>내 정보 수정
+                    </a>
+					
+					<a th:href="@{/api/payments/membership}" class="list-group-item list-group-item-action text-warning" th:if="${!user.isPaid}">
+					    <i class="bi bi-credit-card me-2"></i>멤버십 업그레이드
+					</a>
+                </div>
+            </div> <!-- col-lg-3 끝 -->
+            <!-- ▲▲▲ [ 사이드바 디자인 수정 완료 ] ▲▲▲ -->
+
+
+            <!-- 2. 메인 컨텐츠 (col-md-9 -> col-lg-9) -->
+            <div class="col-lg-9">
+                <!-- 여기에 classes_instructor.html, instructor_mypage_questions.html 등이 삽입됨 -->
+                <th:block layout:fragment="mypage_content"></th:block>
+            </div> <!-- col-lg-9 끝 -->
+            
+        </div> <!-- row 끝 -->
+    </div> <!-- container 끝 -->
+</th:block>
+</html>

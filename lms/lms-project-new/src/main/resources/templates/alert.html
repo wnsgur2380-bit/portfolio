@@ -1,0 +1,32 @@
+<div th:fragment="alertFragment" style="text-align: center;">
+
+	<div th:if="${msg}" 
+	     id="success-alert"
+	     class="alert alert-success fade show mt-3 text-center" 
+	     role="alert"
+	     style="background-color:#198754; color:#fff; font-weight:500; display: inline-block;">
+	    <span th:text="${msg}"></span>
+	</div>
+
+	<div th:if="${errorMsg}" 
+	     id="error-alert"
+	     class="alert alert-danger fade show mt-3 text-center" 
+	     role="alert"
+	     style="display: inline-block;">
+	    <span th:text="${errorMsg}"></span>
+	</div>
+
+	<script>
+	    setTimeout(function() {
+	        let successAlert = document.getElementById("success-alert");
+	        if (successAlert) {
+				successAlert.remove();
+	        }
+	        // [추가] 에러 알림도 2초 뒤에 제거
+	        let errorAlert = document.getElementById("error-alert");
+	        if (errorAlert) {
+				errorAlert.remove();
+	        }
+	    }, 2000); // 2000ms = 2초
+	</script>
+</div>

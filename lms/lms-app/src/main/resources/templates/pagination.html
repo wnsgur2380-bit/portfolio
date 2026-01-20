@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="paging(paging)">
+        
+        <nav aria-label="Page navigation"
+             th:if="${paging != null and paging.totalPages > 0}"
+             th:with="pageCount=5,
+                      start=${(paging.number / pageCount) * pageCount},
+                      tempEnd=${(paging.number / pageCount) * pageCount + pageCount - 1},
+                      last=${paging.totalPages - 1},
+                      end=${tempEnd > last ? last : tempEnd}">
+            
+            <ul class="pagination justify-content-center mt-4">
+                
+                <li class="page-item" th:classappend="${paging.number < pageCount} ? 'disabled'">
+                    <a class="page-link" href="javascript:void(0)" 
+                       th:onclick="|document.getElementById('page').value='${start - 1}'; document.getElementById('searchForm').submit();|">
+                        <span>&laquo;</span>
+                    </a>
+                </li>
+
+                <li th:each="page: ${#numbers.sequence(start, end)}"
+                    th:classappend="${page == paging.number} ? 'active'" 
+                    class="page-item">
+                    <a class="page-link" href="javascript:void(0)" 
+                       th:text="${page + 1}"
+                       th:onclick="|document.getElementById('page').value='${page}'; document.getElementById('searchForm').submit();|">
+                    </a>
+                </li>
+
+                <li class="page-item" th:classappend="${tempEnd >= last} ? 'disabled'">
+                    <a class="page-link" href="javascript:void(0)" 
+                       th:onclick="|document.getElementById('page').value='${end + 1}'; document.getElementById('searchForm').submit();|">
+                        <span>&raquo;</span>
+                    </a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</body>
+</html>

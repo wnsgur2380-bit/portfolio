@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+
+<body>
+	<th:block layout:fragment="content">
+		<div class="container my-4">
+			<div class="card shadow-sm mb-4" sec:authorize="hasRole('ROLE_LEARNER')">
+				<div class="card-body p-4 d-flex align-items-center">
+					<div class="me-4">
+						<i class="bi bi-person-workspace display-3 text-primary"></i>
+					</div>
+					<div class="flex-grow-1">
+						<div class="text-muted">현재 등급 및 이용 현황</div>
+						<h4 class="fw-bold mb-3">
+						    <span th:text="${currentUser?.level?.levelName ?: '비회원'}">초급</span>
+						    
+						    <span th:if="${currentUser != null and currentUser.isPaid}" 
+						          class="badge bg-warning text-dark ms-2">
+						        VIP (모든 강의 시청가능)
+						    </span>
+						    
+						    <span th:if="${currentUser != null and !currentUser.isPaid}" 
+						          class="badge ms-2"
+						          th:classappend="${currentUser.endDate.isBefore(#temporals.createNow())} ? 'bg-danger' : 'bg-success'">
+						        
+						        <span th:if="${currentUser.endDate.isAfter(#temporals.createNow())}"
+						              th:text="|무료체험: ${#temporals.format(currentUser.endDate, 'yyyy-MM-dd')}까지|"></span>
+						              
+						        <span th:if="${currentUser.endDate.isBefore(#temporals.createNow())}">
+						            무료체험 만료됨
+						        </span>
+						    </span>
+						</h4>
+						<!-- [수정] th:block을 추가하여 고급 레벨(3)이 아닐 때만 보이도록 래핑 -->
+						<th:block th:unless="${currentUser != null and currentUser.level?.levelId == 3}">
+							<div class="d-flex justify-content-between mb-1">
+								<span class="fw-bold">진행 상황 (현재 등급)</span> <span class="text-muted">
+									<span th:text="${completedCount}">0</span> /
+									<span th:text="${totalCount}">10</span> 강의 </span>
+							</div>
+							<div class="progress" style="height: 10px;">
+								<div class="progress-bar" role="progressbar"
+									th:style="'width:' + (${progressPercent == null ? 0 : progressPercent}) + '%;'"
+									aria-valuemin="0" aria-valuemax="100">
+								</div>
+							</div>
+						</th:block>
+						<!-- [수정] "등급업 테스트까지" 텍스트 분기 -->
+						<div th:if="${currentUser != null and currentUser.level?.levelId == 3}" class="form-text mt-2">
+							<i class="bi bi-star-fill me-1"></i>
+							<span>현재 최고 등급입니다.</span>
+						</div>
+						<div th:unless="${currentUser != null and currentUser.level?.levelId == 3}"
+							class="form-text mt-2">
+							<i class="bi bi-info-circle-fill me-1"></i>
+							등급업 테스트까지 <span
+								th:text="${(totalCount - completedCount < 0) ? 0 : (totalCount - completedCount)}"></span>개
+							강의 남았습니다.
+						</div>
+					</div>
+					<div class="ms-4" th:if="${promotionTestEligible and promotionTestQuizId != null}"
+						sec:authorize="isAuthenticated()">
+						<form th:action="@{/quiz_attempt/start/{quizId}(quizId=${promotionTestQuizId})}" method="post">
+							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+							<button type="submit" class="btn btn-dark btn-lg">
+								등급업 테스트
+							</button>
+						</form>
+					</div>
+					<div class="ms-3" sec:authorize="hasRole('ROLE_INSTRUCTOR') or hasRole('ROLE_ADMIN')">
+						<a class="btn btn-success btn-lg" th:href="@{/classes/create}" role="button">
+							<i class="bi bi-plus-circle"></i> 강의 등록
+						</a>
+					</div>
+				</div>
+			</div>
+			<section>
+				<div class="col-md-6 col-lg-4" th:each="cls : ${classesList}">
+				</div>
+			</section>
+
+			<section class="mt-5" th:if="${!#lists.isEmpty(randomClasses)}">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<div>
+						<h3 class="mb-0 fw-bold">추천 강의</h3>
+					</div>
+					<div>
+						<a th:href="@{/classes/list}" class="btn btn-sm btn-outline-secondary">전체강의목록</a>
+					</div>
+				</div>
+
+				<div class="row g-3">
+					<div class="col-md-6 col-lg-3" th:each="cls : ${randomClasses}">
+						<div class="card h-100 shadow-sm border-0">
+							<div class="card-body p-4 position-relative">
+								<span class="badge bg-info position-absolute top-0 start-0 m-3"
+									th:text="${cls.level.levelName}"></span>
+
+								<div th:if="${cls.classesImg != null and !cls.classesImg.isEmpty()}"
+									class="text-center bg-light mb-3" style="height: 150px; overflow: hidden;">
+									<img th:src="${cls.classesImg}" class="card-img-top" alt="강의 이미지"
+										style="width: 100%; height: 100%; object-fit: cover;">
+								</div>
+								<div th:unless="${cls.classesImg != null and !cls.classesImg.isEmpty()}"
+									class="text-center d-flex align-items-center justify-content-center bg-light mb-3"
+									style="height: 150px;">
+									<i class="bi bi-book display-1 text-muted"></i>
+								</div>
+
+								<h5 class="card-title fw-bold mt-3">
+									<a th:href="@{|/classes/${cls.classesId}|}" th:text="${cls.title}"
+										class="text-decoration-none stretched-link"></a>
+								</h5>
+								<p class="card-text text-muted small" th:text="${cls.user.userName}"></p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="mt-5" th:if="${!#lists.isEmpty(randomInstructors)}">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<div>
+						<h3 class="mb-0 fw-bold"> 추천 강사</h3>
+					</div>
+				</div>
+
+				<div class="row g-3">
+
+					<div class="col-md-6 col-lg-3" th:each="inst : ${randomInstructors}">
+						<div class="card h-100 shadow-sm border-0">
+							<div class="card-body p-4 text-center">
+								<i class="bi bi-person-video3 display-1 text-muted"></i>
+								<h5 class="card-title fw-bold mt-3">
+									<a th:href="@{/classes/instructor/{uno}(uno=${inst.uno})}"
+										th:text="${inst.userName}" class="text-decoration-none stretched-link">강사 이름</a>
+								</h5>
+								<p class="card-text text-muted small" th:text="${inst.email}">강사 이메일</p>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</section>
+		</div>
+	</th:block>
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>

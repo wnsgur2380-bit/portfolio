@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="_csrf" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <title>강의 결제</title>
+</head>
+<body>
+  <h1 th:text="${lecture.title}">강의 제목</h1>
+  <p>가격 : <span th:text="${#numbers.formatInteger(lecture.price, 3, 'COMMA')}"></span>원</p>
+
+  <button type="button" id="payButton" th:data-lecture-id="${lecture.lectureId}">결제하기</button>
+
+  <script>
+    const csrfHeader = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+    const csrfToken = document.querySelector("meta[name='_csrf']").getAttribute("content");
+    const payButton = document.getElementById("payButton");
+
+    payButton.addEventListener("click", (e) => {
+      const lectureId = e.target.getAttribute("data-lecture-id");
+
+      payButton.disabled = true;
+      payButton.textContent = "결제 준비 중...";
+
+      fetch("/api/payments/ready", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          [csrfHeader]: csrfToken
+        },
+        body: JSON.stringify({ lectureId: lectureId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const redirectUrl = data.checkoutUrl;
+        if (redirectUrl) {
+          window.location.href = redirectUrl;
+        } else {
+          alert("결제 URL이 없습니다. 관리자에게 문의하세요.");
+          console.error("응답 데이터:", data);
+        }
+      })
+      .catch(err => {
+        console.error("결제 요청 실패:", err);
+        alert("결제 요청 중 오류가 발생했습니다.");
+      })
+      .finally(() => {
+        payButton.disabled = false;
+        payButton.textContent = "결제하기";
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="|${quiz.quizTitle} - 문제 관리|"></title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <div class="container my-4">
+
+		<div class="row my-3 align-items-center">
+		  <div class="col-md-6">
+		    <a th:if="${kw == null or kw == ''}" th:href="@{/instructor/quiz/list}" class="text-decoration-none text-muted">
+		      <i class="bi bi-arrow-left"></i> 테스트 목록으로
+		    </a>
+
+		    <a th:if="${kw != null and kw != ''}" th:href="@{|/instructor/quiz/${quiz.quizId}/questions|}" class="text-decoration-none text-muted">
+		       <i class="bi bi-arrow-left"></i> 문제 관리 목록으로
+		   	</a>
+
+		    <h2 class="fw-bold mt-2" th:text="${quiz.quizTitle}"></h2>
+		</div>
+		            
+		<div class="col-md-6 d-flex justify-content-end align-items-end">
+		          <form th:action="@{|/instructor/quiz/${quiz.quizId}/questions|}" method="get" id="searchForm" class="d-flex align-items-center me-2">
+		            <input type="hidden" id="page" name="page" th:value="${paging.number}">
+		            <div class="input-group" style="width: 300px;">
+		              <input type="text" id="search_kw" name="kw" class="form-control" th:value="${kw}" placeholder="문제 내용 또는 출제자">
+		              <button class="btn btn-outline-secondary" type="button" id="btn_search">검색</button>
+		           </div>
+		        </form>
+		                
+		        <a th:href="@{/instructor/quiz/{quizId}/question/create(quizId=${quiz.quizId})}" class="btn btn-primary text-nowrap">
+		           <i class="bi bi-plus-circle me-1"></i> 문제 등록
+		        </a>
+		</div>
+	</div>
+        
+        <div th:replace="~{alert :: alertFragment}"></div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <table class="table table-hover align-middle text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 5%;">No.</th>
+                            <th style="width: 50%;">문제 내용</th>
+                            <th style="width: 10%;">정답</th>
+                            <th style="width: 10%;">배점</th>
+                            <th style="width: 15%;">출제자</th>
+                            <th style="width: 10%;">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="q, loop : ${paging}">
+                            <td th:text="${paging.totalElements - (paging.number * paging.size) - loop.index}"></td>
+                            <td class="text-start">
+                                <span th:text="${q.quizContent}" class="d-inline-block text-truncate" style="max-width: 400px;"></span>
+                            </td>
+                            <td th:text="${q.correctAnswer}"></td>
+                            <td>
+                                <span class="badge bg-secondary rounded-pill" th:text="|${q.score}점|"></span>
+                            </td>
+                            <td>
+                                <span th:if="${q.author != null}" th:text="${q.author.userName}"></span>
+                            </td>
+                            <td>
+								<th:block th:if="${currentUser != null and (
+								                    q.author != null and q.author.uno == currentUser.uno 
+								                    or #authorization.expression('hasRole(''ROLE_ADMIN'')')
+								                 )}">
+								    <a th:href="@{/instructor/question/edit/{questionId}(questionId=${q.questionId})}" 
+								       class="btn btn-sm btn-outline-secondary" title="수정">
+								       <i class="bi bi-pencil-fill"></i>
+								    </a>
+								    
+								    <a href="javascript:void(0);" 
+								       th:data-uri="@{/instructor/question/delete/{questionId}(questionId=${q.questionId})}"
+								       onclick="deleteConfirm(this.getAttribute('data-uri'))"
+								       class="btn btn-sm btn-outline-danger ms-1" title="삭제">
+								       <i class="bi bi-trash"></i>
+								    </a>
+								</th:block>
+                            </td>
+                        </tr>
+                        <tr th:if="${paging.isEmpty()}">
+                            <td colspan="6" class="py-4 text-muted">등록된 문제가 없습니다.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div th:replace="~{pagination :: paging(${paging})}"></div>
+
+        <form th:action="@{|/instructor/quiz/${quiz.quizId}/questions|}" method="get" id="searchForm">
+            <input type="hidden" id="kw" name="kw" th:value="${kw}">
+            <input type="hidden" id="page" name="page" th:value="${paging.number}">
+        </form>
+
+    </div> 
+
+    <script layout:fragment="script" type='text/javascript'>
+        // 1. 삭제 확인 함수
+        function deleteConfirm(url) {
+            if (confirm("이 문제를 정말 삭제하시겠습니까?")) {
+                location.href = url;
+            }
+        }
+
+        // 2. 페이징 클릭 처리
+        
+
+        // 3. 검색 버튼 클릭 처리
+        const btn_search = document.getElementById("btn_search");
+        btn_search.addEventListener('click', function() {
+            document.getElementById('kw').value = document.getElementById('search_kw').value;
+            document.getElementById('page').value = 0;  // 검색 시 1페이지(index 0)부터 조회
+            document.getElementById('searchForm').submit();
+        });
+        
+        // 검색창에서 엔터키 입력 시 검색 버튼 클릭
+        document.getElementById("search_kw").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById("btn_search").click();
+            }
+        });
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+<head>
+    <title>수강생 목록</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <div class="container my-4">
+        
+		<div class="d-flex justify-content-between align-items-center mb-4">
+		            <div>
+		                <a th:if="${kw == null or kw == ''}" th:href="@{/instructor/classes}" class="text-decoration-none text-muted">
+		                    <i class="bi bi-arrow-left"></i> 내 강의 목록으로
+		                </a>
+
+		                <a th:if="${kw != null and kw != ''}" th:href="@{|/enrollment/classes/${classesId}|}" class="text-decoration-none text-muted">
+		                    <i class="bi bi-arrow-left"></i> 전체 수강생 목록으로
+		                </a>
+
+		                <h2 class="fw-bold mt-2">수강생 관리</h2>
+		            </div>
+		            
+		            <form th:action="@{|/enrollment/classes/${classesId}|}" method="get" id="searchForm" class="d-flex">
+		                <input type="hidden" id="page" name="page" th:value="${paging.number}">
+		                <div class="input-group">
+		                    <input type="text" id="search_kw" name="kw" class="form-control" th:value="${kw}" placeholder="이름 또는 ID 검색">
+		                    <button class="btn btn-outline-secondary" type="button" id="btn_search">검색</button>
+		                </div>
+		            </form>
+		  </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-hover text-center align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No.</th>
+                            <th>이름 (ID)</th>
+                            <th>현재 등급</th>
+                            <th>수강 여부</th>
+                            <th>수강 신청일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${paging.isEmpty()}">
+                            <td colspan="6" class="py-5 text-muted">수강생이 없습니다.</td>
+                        </tr>
+                        <tr th:each="enrollment, loop : ${paging}">
+                            <td th:text="${(paging.number * paging.size) + loop.count}"></td>
+                            <td>
+                                <span class="fw-bold" th:text="${enrollment.user.userName}"></span>
+                                <span class="text-muted small" th:text="|(${enrollment.user.userId})|"></span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info text-dark" 
+                                      th:if="${enrollment.user.level != null}"
+                                      th:text="${enrollment.user.level.levelName}">
+                                </span>
+                                <span th:unless="${enrollment.user.level != null}">-</span>
+                            </td>
+                            <td>
+                                <span class="badge" 
+                                      th:classappend="${enrollment.completed ? 'bg-primary' : 'bg-secondary'}"
+                                      th:text="${enrollment.completed ? '수강 완료' : '수강 중'}">
+                                </span>
+                            </td>
+                            <td th:text="${#temporals.format(enrollment.enrollmentDate, 'yyyy-MM-dd')}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div th:replace="~{pagination :: paging(${paging})}"></div>
+
+    </div>
+
+    <script layout:fragment="script" type='text/javascript'>
+        
+
+        const btn_search = document.getElementById("btn_search");
+        btn_search.addEventListener('click', function() {
+            document.getElementById('page').value = 0;
+            document.getElementById('searchForm').submit();
+        });
+    </script>
+</th:block>
+</body>
+</html>

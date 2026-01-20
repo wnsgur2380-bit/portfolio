@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{instructor_mypage_layout}">
+      
+<th:block layout:fragment="mypage_content">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0" th:text="${pageTitle}">내 강의 질문</h5>
+        </div>
+        <div class="card-body">
+            
+            <table class="table table-hover align-middle text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 10%;">번호</th>
+                        <th style="width: 15%;">강의명</th>
+                        <th style="width: 40%;">제목</th>
+                        <th style="width: 15%;">작성자</th>
+                        <th style="width: 20%;">작성일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${!paging.hasContent()}">
+                        <td colspan="5" class="text-center p-3 text-muted">등록된 질문이 없습니다.</td>
+                    </tr>
+                    
+                    <tr th:each="question, loop : ${paging.content}">
+                        <td th:text="${(paging.number * paging.size) + loop.count}"></td>
+                        
+                        <td>
+                             <a th:href="@{|/classes/${question.classes.classesId}|}" 
+                               th:text="${question.classes.title}" 
+                               class="text-decoration-none text-dark">
+                            </a>
+                        </td>
+                        
+                        <td class="text-start">
+                            <a th:href="@{|/question/detail/${question.boardQuesId}|}" 
+                               th:text="${question.title}" class="text-decoration-none"></a>
+                            
+                            <span th:if="${#lists.size(question.answers) > 0}"
+                                  th:text="|(${#lists.size(question.answers)})|"
+                                  class="text-danger ms-1 fw-bold"></span>
+                        </td>
+                        <td th:text="${question.user.userName}"></td>
+                        <td th:text="${#temporals.format(question.quesDate, 'yyyy-MM-dd')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div th:replace="~{pagination :: paging(${paging})}"></div>
+
+            <form th:action="@{/instructor/mypage/questions}" method="get" id="searchForm">
+                <input type="hidden" id="page" name="page" th:value="${paging.number}">
+            </form>
+            
+        </div>
+    </div>
+</th:block>
+</html>

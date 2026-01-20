@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+
+<head>
+	<title>마이페이지 - 나의학습</title>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+
+		<div class="container my-4">
+			<div class="row g-4">
+
+				<div class="col-lg-3">
+					<h4 class="mb-3 fw-bold">마이페이지</h4>
+					<div class="list-group">
+						<a th:href="@{/enrollment/user(status='active')}" class="list-group-item list-group-item-action"
+							th:classappend="${currentStatus == 'active' ? 'active' : ''}" aria-current="true">신청강좌</a>
+						<a th:href="@{/enrollment/user(status='completed')}"
+							class="list-group-item list-group-item-action"
+							th:classappend="${currentStatus == 'completed' ? 'active' : ''}">완료강좌</a>
+						<a th:href="@{/question/my}" class="list-group-item list-group-item-action">내 질문</a>
+						<a th:href="@{/answer/my}" class="list-group-item list-group-item-action">내 답글</a>
+						<a th:href="@{/user/modify}" class="list-group-item list-group-item-action">내 정보 수정</a>
+						<a th:href="@{/api/payments/membership}" class="list-group-item list-group-item-action text-warning" th:if="${!user.isPaid}">
+							<i class="bi bi-credit-card me-2"></i>멤버십 업그레이드
+						</a>
+					</div>
+				</div>
+
+				<div class="col-lg-9">
+					<div class="card bg-light mb-4 border-0">
+						<div class="card-body d-flex justify-content-between align-items-center">
+							<div>
+								<h5 class="fw-bold mb-0" th:text="${#authentication.name} + ' 님의 학습 현황'"></h5>
+							</div>
+							<div>
+								<span th:if="${user.isPaid}" class="badge bg-warning text-dark fs-6">
+									<i class="bi bi-star-fill"></i> VIP (모든 강의 시청가능)
+								</span>
+								<span th:unless="${user.isPaid}" class="badge bg-secondary fs-6">
+									<i class="bi bi-clock"></i>
+									무료체험: <span th:text="${#temporals.format(user.endDate, 'yyyy-MM-dd')}"></span>까지
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- [수정] th:each 루프 대상을 ${paging.content}로 변경 -->
+					<div class="card shadow-sm mb-3" th:each="enrollment : ${paging.content}">
+						<div class="row g-0">
+
+							<!-- [수정] 이미지 크기 고정을 위한 div 래퍼 적용 -->
+							<div class="col-md-4 rounded-start bg-light" style="height: 200px; overflow: hidden;">
+								<!-- 1. 이미지가 있는 경우 -->
+								<img th:if="${enrollment.classes.classesImg != null and !enrollment.classes.classesImg.isEmpty()}"
+									th:src="@{${enrollment.classes.classesImg}}" alt="과정 이미지"
+									style="width: 100%; height: 100%; object-fit: cover;">
+								<!-- 2. 이미지가 없는 경우 (Placeholder) -->
+								<img th:unless="${enrollment.classes.classesImg != null and !enrollment.classes.classesImg.isEmpty()}"
+									src="https://via.placeholder.com/400x250/dee2e6/6c757d?text=No+Image" alt="이미지 없음"
+									style="width: 100%; height: 100%; object-fit: cover;">
+							</div>
+
+							<div class="col-md-8">
+								<div class="card-body d-flex flex-column h-100 p-4">
+									<div class="flex-grow-1">
+										<dl class="row">
+											<dt class="col-sm-3 text-muted small">강의명</dt>
+											<dd class="col-sm-9 fw-bold" th:text="${enrollment.classes.title}">강의 제목
+											</dd>
+
+											<dt class="col-sm-3 text-muted small">강사</dt>
+											<dd class="col-sm-9" th:text="${enrollment.classes.user.userName}">강사 이름
+											</dd>
+
+											<dt class="col-sm-3 text-muted small">강의 레벨</dt>
+											<dd class="col-sm-9">
+												<span class="badge"
+													th:text="${enrollment.classes.level?.levelName ?: 'N/A'}"
+													th:classappend="${enrollment.classes.level == null ? 'bg-secondary' : 
+										                               (enrollment.classes.level.levelId == 1 ? 'bg-info' : 
+										                               (enrollment.classes.level.levelId == 2 ? 'bg-primary' : 'bg-danger'))}">
+												</span>
+											</dd>
+											<dt class="col-sm-3 text-muted small">진도율</dt>
+											<dd class="col-sm-9" th:text="${enrollment.progress + '%'}">0%</dd>
+											<dt class="col-sm-3 text-muted small">수료여부</dt>
+											<dd class="col-sm-9" th:text="${enrollment.completed ? '수료' : '진행 중'}">진행 중
+											</dd>
+											<dt class="col-sm-3 text-muted small">신청일</dt>
+											<dd class="col-sm-9"
+												th:text="${#temporals.format(enrollment.enrollmentDate, 'yyyy-MM-dd')}">
+												신청일</dd>
+										</dl>
+									</div>
+									<div class="mt-3 text-end">
+										<a th:href="@{|/classes/${enrollment.classes.classesId}|}"
+											class="btn btn-primary btn-sm">강의 보기</a>
+										<form th:if="${!enrollment.completed}"
+											th:action="@{|/enrollment/delete/${enrollment.enrollmentId}|}" method="post"
+											style="display:inline;" onsubmit="return confirm('정말로 수강을 취소하시겠습니까?');">
+											<input type="hidden" th:name="${_csrf.parameterName}"
+												th:value="${_csrf.token}" th:if="${_csrf}" />
+											<button type="submit" class="btn btn-danger btn-sm ms-2">수강취소</button>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- [수정] th:if 조건을 ${!paging.hasContent()}로 변경 -->
+					<div th:if="${!paging.hasContent()}" class="text-center p-5">
+						<span th:if="${currentStatus == 'active'}" class="text-muted">신청한(진행 중인) 강의가 없습니다.</span>
+						<span th:if="${currentStatus == 'completed'}" class="text-muted">완료한 강의가 없습니다.</span>
+					</div>
+
+					<!-- [수정] ${paging} 객체를 pagination.html 프래그먼트로 전달 -->
+					<div th:replace="~{pagination :: paging(${paging})}"></div>
+
+				</div>
+			</div>
+		</div>
+	</th:block>
+</body>
+
+</html>

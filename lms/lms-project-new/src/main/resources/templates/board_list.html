@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>게시판</title>
+</head>
+<body>
+    <th:block layout:fragment="content">
+    
+        <div class="container my-4">
+            
+			<div class="d-flex justify-content-between align-items-end my-4">
+			  <div>
+			   	<a th:if="${kw != null and kw != ''}" th:href="@{/question/list}" class="text-decoration-none text-muted small mb-2 d-block">
+			       <i class="bi bi-arrow-left"></i> 전체 목록으로
+			    </a>
+			    <h2 class="fw-bold m-0">게시판</h2>
+			  </div>
+			                
+			  <a th:href="@{/question/create}" class="btn btn-primary">
+			    <i class="bi bi-pencil-square me-1"></i> 글쓰기
+			  </a>
+			</div>
+
+            <div class="row justify-content-end my-3">
+                <div class="col-md-6"> 
+                    <form th:action="@{/question/list}" method="get" id="searchForm" class="input-group">
+                        <input type="hidden" id="page" name="page" th:value="${paging.number}">
+                        
+                        <select class="form-select" name="searchType" id="searchType" style="max-width: 120px;">
+                            <option value="title" th:selected="${searchType == 'title'}">제목</option>
+                            <option value="class" th:selected="${searchType == 'class'}">강의명</option>
+                            <option value="author" th:selected="${searchType == 'author'}">글쓴이</option>
+                        </select>
+                        
+                        <input type="text" id="search_kw" name="kw" class="form-control" th:value="${kw}" placeholder="검색어를 입력하세요">
+                        
+                        <button class="btn btn-outline-secondary" type="button" id="btn_search">검색</button>
+                    </form>
+                </div>
+            </div>
+
+            <table class="table table-hover text-center align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" style="width: 10%;">번호</th>
+                        <th scope="col" style="width: 20%;">강의명</th> 
+                        <th scope="col" style="width: 15%;">강의 레벨</th> 
+                        <th scope="col" style="width: 30%;">제목</th> 
+                        <th scope="col" style="width: 10%;">글쓴이</th> 
+                        <th scope="col" style="width: 15%;">작성일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="question, loop : ${paging}">
+                        <td th:text="${(paging.number * paging.size) + loop.count}"></td>
+                        
+                        <td class="text-start small" th:text="${question.classes.title}"></td>
+                    
+                        <td>
+                            <span class="badge"
+                                  th:text="${question.classes.level?.levelName ?: 'N/A'}"
+                                  th:classappend="${question.classes.level == null ? 'bg-secondary' : 
+                                                   (question.classes.level.levelId == 1 ? 'bg-info' : 
+                                                   (question.classes.level.levelId == 2 ? 'bg-primary' : 'bg-danger'))}">
+                            </span>
+                        </td>
+
+                        <td class="text-start">
+                            <a th:href="@{|/question/detail/${question.boardQuesId}|}" 
+                               th:text="${question.title}" 
+                               class="text-decoration-none text-dark fw-bold"> </a>
+                            <span th:if="${#lists.size(question.answers) > 0}"
+                                  th:text="|(${#lists.size(question.answers)})|"
+                                  class="text-danger ms-1 fw-bold small"></span>
+                        </td>
+                        <td th:text="${question.user.userName}"></td>
+                        <td th:text="${#temporals.format(question.quesDate, 'yyyy-MM-dd HH:mm')}"></td>
+                    </tr>
+                    <tr th:if="${paging.isEmpty()}">
+                        <td colspan="6" class="py-4 text-muted">등록된 질문이 없습니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div th:replace="~{pagination :: paging(${paging})}"></div>
+            
+        </div>
+
+        <script layout:fragment="script" type='text/javascript'>
+            // 1. 페이징 버튼 클릭 시 폼 전송
+            
+
+            // 2. 검색 버튼 클릭 시 페이지 0으로 초기화 후 전송
+            const btn_search = document.getElementById("btn_search");
+            btn_search.addEventListener('click', function() {
+                document.getElementById('page').value = 0; 
+                document.getElementById('searchForm').submit();
+            });
+
+            // 3. 엔터키 입력 시 검색 버튼 클릭 효과
+            document.getElementById("search_kw").addEventListener("keyup", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    document.getElementById("btn_search").click();
+                }
+            });
+        </script>
+
+    </th:block>
+</body>
+</html>

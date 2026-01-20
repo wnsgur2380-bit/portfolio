@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title th:text="|퀴즈 응시: ${attempt.quiz.quizTitle}|">퀴즈 응시</title>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/bootstrap.css}">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+	<!-- ▼▼▼ 1. 커스텀 알림창 CSS 추가 ▼▼▼ -->
+	<style>
+		.custom-alert-overlay {
+			display: none;
+			/* 기본 숨김 */
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.4);
+			justify-content: center;
+			align-items: center;
+			z-index: 1050;
+		}
+
+		.custom-alert-box {
+			background-color: white;
+			padding: 2rem;
+			border-radius: 0.5rem;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+			width: 90%;
+			max-width: 400px;
+			text-align: center;
+		}
+
+		/* 미입력 문항 하이라이트 효과 */
+		.question-highlight {
+			/* !important를 사용해 shadow-sm을 덮어씁니다 */
+			border: 2px solid #dc3545 !important;
+			box-shadow: 0 0 0.5rem rgba(220, 53, 69, 0.5) !important;
+			transition: all 0.3s ease-in-out;
+		}
+
+		.card-header {
+			background-color: white;
+		}
+
+		.card-body {
+			background-color: lightgray;
+		}
+	</style>
+	<!-- ▲▲▲ CSS 추가 완료 ▲▲▲ -->
+</head>
+
+<body class="bg-light">
+
+	<!-- ▼▼▼ 2. 커스텀 알림창 HTML (숨겨져 있음) ▼▼▼ -->
+	<div id="customAlert" class="custom-alert-overlay">
+		<div class="custom-alert-box">
+			<h5 class="fw-bold mb-3">알림</h5>
+			<p id="customAlertMessage" class="mb-4">모든 질문에 답변을 선택해주세요.</p>
+			<button id="closeAlertBtn" class="btn btn-primary w-100">확인</button>
+		</div>
+	</div>
+	<!-- ▲▲▲ 커스텀 알림창 HTML 끝 ▲▲▲ -->
+
+
+	<div class="container my-4" style="max-width: 800px;">
+		<h2 class="fw-bold mb-3" th:text="${attempt.quiz.quizTitle}">퀴즈 제목</h2>
+		<p>총 20개의 랜덤 문제가 출제되었습니다. 모든 문제에 답안을 선택하고 제출해주세요.</p>
+
+		<form id="quizForm" th:action="@{/quiz_answer/create/{id}(id=${attempt.attemptId})}"
+			th:object="${answerListForm}" method="post">
+
+			<input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+			<!-- ▼▼▼ 3. 각 질문 카드에 "question-block" 클래스 추가 ▼▼▼ -->
+			<!-- [수정] th:each는 원래 코드(${quizAnswers})로 유지합니다! -->
+			<div th:each="answer, iter : ${quizAnswers}" class="card my-3 shadow-sm question-block">
+				<div class="card-header fw-bold">
+
+					<!-- [유지] 폼 바인딩은 answerForms[index]를 사용합니다. (원래 코드) -->
+					<input type="hidden" th:field="*{answerForms[__${iter.index}__].qAnswerId}" />
+					<input type="hidden" th:field="*{answerForms[__${iter.index}__].qQuestionId}" />
+
+					<span th:text="|Q${iter.count}. ${answer.qQuestion.quizContent}|"></span>
+				</div>
+
+				<div class="card-body">
+
+					<!-- ▼▼▼ 4. 'required' 속성 모두 제거 ▼▼▼ -->
+					<div class="form-check">
+						<input class="form-check-input" type="radio"
+							th:field="*{answerForms[__${iter.index}__].userAnswer}"
+							th:value="${answer.qQuestion.option1}"> <!-- 'required' 제거 -->
+						<label class="form-check-label" th:text="${answer.qQuestion.option1}"></label>
+					</div>
+					<div class="form-check">
+						<input class="form-check-input" type="radio"
+							th:field="*{answerForms[__${iter.index}__].userAnswer}"
+							th:value="${answer.qQuestion.option2}"> <!-- 'required' 제거 -->
+						<label class="form-check-label" th:text="${answer.qQuestion.option2}"></label>
+					</div>
+					<div class="form-check">
+						<input class="form-check-input" type="radio"
+							th:field="*{answerForms[__${iter.index}__].userAnswer}"
+							th:value="${answer.qQuestion.option3}"> <!-- 'required' 제거 -->
+						<label class="form-check-label" th:text="${answer.qQuestion.option3}"></label>
+					</div>
+					<div class="form-check">
+						<input class="form-check-input" type="radio"
+							th:field="*{answerForms[__${iter.index}__].userAnswer}"
+							th:value="${answer.qQuestion.option4}"> <!-- 'required' 제거 -->
+						<label class="form-check-label" th:text="${answer.qQuestion.option4}"></label>
+					</div>
+				</div>
+			</div>
+			<!-- ▲▲▲ [ 수정 완료 ] ▲▲▲ -->
+
+
+			<div class="text-center mt-4">
+				<button type="submit" class="btn btn-primary btn-lg">답안 제출하기</button>
+			</div>
+		</form>
+
+		<div th:unless="${answerListForm != null and !#lists.isEmpty(answerListForm.answerForms)}">
+			<div class="alert alert-warning" role="alert">
+				퀴즈 문제를 불러오는 데 실패했습니다. 관리자에게 문의하세요.
+			</div>
+		</div>
+
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+		xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+		crossorigin="anonymous"></script>
+
+	<!-- ▼▼▼ 5. JavaScript 수정 (alert 대체 및 스크롤 기능 추가) ▼▼▼ -->
+	<script type='text/javascript'>
+		document.addEventListener("DOMContentLoaded", function () {
+
+			const form = document.getElementById('quizForm');
+			const customAlert = document.getElementById('customAlert');
+			const customAlertMessage = document.getElementById('customAlertMessage');
+			const closeAlertBtn = document.getElementById('closeAlertBtn');
+
+			// 커스텀 알림창 표시 함수
+			function showCustomAlert(message) {
+				customAlertMessage.textContent = message;
+				customAlert.style.display = 'flex';
+			}
+
+			// 폼 제출 이벤트 리스너
+			form.addEventListener('submit', function (e) {
+
+				// 0. 이전에 적용된 하이라이트가 있다면 모두 제거
+				document.querySelectorAll('.question-highlight').forEach(el => {
+					el.classList.remove('question-highlight');
+				});
+
+				// 1. 모든 질문 카드(.question-block)를 가져옴 (원래 코드의 .card.my-3 대신 .question-block 사용)
+				const allQuestions = document.querySelectorAll(".question-block");
+				let firstUnanswered = null; // 미입력된 첫번째 질문 DOM 요소를 저장할 변수
+				let firstUnansweredNumber = 0; // 미입력된 첫번째 질문 번호
+
+				// 2. 모든 질문을 순회
+				for (let i = 0; i < allQuestions.length; i++) {
+					const card = allQuestions[i];
+					// 각 카드(문제)에서 체크된 라디오 버튼이 있는지 확인
+					const answered = card.querySelector('input[type="radio"]:checked');
+
+					if (!answered) {
+						// 3. 미입력된 첫번째 질문을 발견하면, 정보 저장 후 중단
+						firstUnanswered = card;
+						firstUnansweredNumber = i + 1; // (i는 0부터 시작하므로 +1)
+						break;
+					}
+				}
+
+				// 4. 미입력 문항이 있다면
+				if (firstUnanswered) {
+					e.preventDefault(); // 폼 제출 막기
+
+					// 5. 커스텀 알림창 띄우기
+					showCustomAlert("모든 질문에 답변을 선택해주세요.");
+
+					// 6. 해당 문항으로 스크롤 및 하이라이트
+					firstUnanswered.scrollIntoView({behavior: 'smooth', block: 'center'});
+					firstUnanswered.classList.add('question-highlight');
+				}
+			});
+
+			// 커스텀 알림창 닫기 버튼
+			closeAlertBtn.addEventListener('click', function () {
+				customAlert.style.display = 'none';
+			});
+		});
+	</script>
+	<!-- ▲▲▲ JavaScript 수정 완료 ▲▲▲ -->
+</body>
+
+</html>

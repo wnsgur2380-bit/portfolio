@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+  
+	<head>
+		<title>내 퀴즈 응시 기록</title>
+	</head>
+
+	<body>
+		<h1>내 응시 기록</h1>
+		<div th:if="${error}" style="color:red;">[[${error}]]</div>
+		<table border="1">
+			<tr>
+				<th>응시 ID</th>
+				<th>퀴즈 제목</th>
+				<th>점수</th>
+		 		<th>응시 일시</th>
+				<th>결과보기</th>
+			</tr>
+			
+			<tr th:each="attempt : ${attemptList}">
+				<td th:text="${attempt.attemptId}"></td>
+				<td th:text="${attempt.quiz.title}"></td>
+				<td th:text="${attempt.score}"></td>
+				<td th:text="${#temporals.format(attempt.attemptedCdate, 'yyyy-MM-dd HH:mm')}"></td>
+				<td>
+				<a th:href="@{'/quiz_attempt/' + ${attempt.attemptId} + '/result'}">결과보기</a>
+				</td>
+			</tr>
+		</table>
+		<br>
+		<a href="/quiz/list">퀴즈 목록으로 돌아가기</a>
+	</body>
+</html> 

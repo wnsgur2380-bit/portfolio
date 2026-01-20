@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>내 수강생 관리</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <div class="container my-4">
+        <h2 class="fw-bold my-4">내 수강생 관리</h2>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(students)}" class="text-center p-3 text-muted">
+                    아직 내 강의를 수강하는 학생이 없습니다.
+                </div>
+
+                <table class="table table-hover align-middle" th:unless="${#lists.isEmpty(students)}">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">학생 이름</th>
+                            <th scope="col">학생 아이디</th>
+                            <th scope="col">이메일</th>
+                            <th scope="col">현재 레벨</th>
+                            <th scope="col">가입일</th>
+                        </tr>
+                    </thead>
+					<tbody>
+					        <tr th:each="student, iterStat : ${students}">
+					        <td th:text="${iterStat.count}">1</td>
+					        <td>
+					        <a th:href="@{/instructor/student/{uno}(uno=${student.uno})}" 
+					           th:text="${student.userName}" 
+					           class="text-decoration-none fw-bold"></a>
+					        </td>
+					        <td th:text="${student.userId}">student1</td>
+					        <td th:text="${student.email}">student1@example.com</td>
+					        <td>
+                            <span class.badge th:text="${student.level.levelName}"
+                            th:classappend="|badge ${
+                            student.level.levelId == 1 ? 'bg-info' : 
+                            student.level.levelId == 2 ? 'bg-primary' : 'bg-danger'
+                            }|">초급</span>
+                            </td>
+                            <td th:text="${#temporals.format(student.userCdate, 'yyyy-MM-dd')}" class="small">2025-10-30</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        </div>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+	  <head>
+	      <title th:text="|수강생 상세 - ${student?.userName}|">수강생 상세</title>
+	  </head>
+<body>
+<th:block layout:fragment="content">
+    <div class="container my-4">
+        
+        <div class="mb-4">
+            <h2 class="fw-bold d-inline-block me-3" th:text="${student?.userName} + ' 님의 수강 내역'">학생 이름 님의 수강 내역</h2>
+            
+            <span class="badge fs-6"
+                  th:text="${student?.level?.levelName ?: 'N/A'}"
+                  th:classappend="${student?.level == null ? 'bg-secondary' : (student.level.levelId == 1 ? 'bg-info' : (student.level.levelId == 2 ? 'bg-primary' : 'bg-danger'))}">
+                  레벨
+            </span>
+            
+			<p class="text-muted mb-0" th:inline="text">
+                  아이디: [[${student?.userId}]] | 이메일: [[${student?.email}]]
+			</p>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">수강 중인 나의 강의</h5>
+            </div>
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(enrollments)}" class="text-center p-3 text-muted">
+                    이 학생은 현재 강사님의 강의를 수강하고 있지 않습니다.
+                </div>
+
+                <table class="table table-hover align-middle mb-0" th:unless="${#lists.isEmpty(enrollments)}">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" style="width: 40%;">강의명</th>
+                            <th scope="col" style="width: 15%;">강의 레벨</th>
+                            <th scope="col" style="width: 15%;">진도율</th>
+                            <th scope="col" style="width: 15%;">수료 여부</th>
+                            <th scope="col" style="width: 15%;">신청일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="enroll : ${enrollments}">
+                            <td>
+                                <a th:href="@{|/classes/${enroll.classes?.classesId}|}" 
+                                   th:text="${enroll.classes?.title}" 
+                                   class="text-decoration-none"></a>
+                            </td>
+							<td>
+                                <span class="badge"
+							      th:text="${enroll.classes?.level?.levelName ?: 'N/A'}"
+							      th:classappend="${enroll.classes?.level == null ? 'bg-secondary' : (enroll.classes.level.levelId == 1 ? 'bg-info' : (enroll.classes.level.levelId == 2 ? 'bg-primary' : 'bg-danger'))}">
+							    </span>
+							</td>
+                            <td th:text="${enroll.progress} + '%'">0%</td>
+                            <td>
+                                <span th:if="${enroll.completed}" class="text-success fw-bold">수료 완료</span>
+                                <span th:unless="${enroll.completed}" class="text-muted">진행 중</span>
+                            </td>
+                            <td th:text="${#temporals.format(enroll.enrollmentDate, 'yyyy-MM-dd')}" class="small"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a th:href="@{/instructor/students}" class="btn btn-secondary">
+                <i class="bi bi-list-ul me-1"></i>
+                전체 수강생 목록으로
+            </a>
+        </div>
+
+    </div>
+</th:block>
+</body>
+</html>

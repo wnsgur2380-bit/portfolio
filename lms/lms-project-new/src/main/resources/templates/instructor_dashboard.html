@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>강사 페이지</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <div class="container my-4">
+        <h2 class="fw-bold my-4">강사 페이지 (대시보드)</h2>
+        
+        <section class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="mb-0 fw-bold">내 강의 목록</h3>
+                <a th:href="@{/classes/create}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> 새 강의 등록
+                </a>
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(myCourses)}" class="text-center p-3 text-muted">
+                        등록한 강의가 없습니다.
+                    </div>
+                    <ul class="list-group list-group-flush" th:unless="${#lists.isEmpty(myCourses)}">
+                        <li th:each="course : ${myCourses}" class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-info me-2" th:text="${course.level.levelName}"></span>
+                                <a th:href="@{|/classes/${course.classesId}|}" th:text="${course.title}" class="text-decoration-none fw-bold"></a>
+                            </div>
+                            <div>
+                                <a th:href="@{|/classes/edit/${course.classesId}|}" class="btn btn-sm btn-outline-secondary">수정</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h3 class="mb-3 fw-bold">내 강의 관련 질문</h3>
+            
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(myQuestions)}" class="text-center p-3 text-muted">
+                        등록된 질문이 없습니다.
+                    </div>
+                    <table class="table table-hover align-middle mb-0" th:unless="${#lists.isEmpty(myQuestions)}">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" style="width: 20%;">강의명</th>
+                                <th scope="col" style="width: 50%;">질문 제목</th>
+                                <th scope="col" style="width: 15%;">작성자</th>
+                                <th scope="col" style="width: 15%;">작성일</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="q : ${myQuestions}">
+                                <td>
+                                    <a th:href="@{|/classes/${q.classes.classesId}|}" th:text="${q.classes.title}" class="small text-decoration-none"></a>
+                                </td>
+                                <td>
+                                    <a th:href="@{|/question/detail/${q.boardQuesId}|}" th:text="${q.title}" class="text-decoration-none"></a>
+                                </td>
+                                <td th:text="${q.user.userName}"></td>
+                                <td th:text="${#temporals.format(q.quesDate, 'yyyy-MM-dd')}" class="small"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+</th:block>
+</body>
+</html>

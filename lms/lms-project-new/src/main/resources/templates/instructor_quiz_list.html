@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+
+<head>
+	<title>테스트 관리 (Quiz 목록)</title>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<h2 class="fw-bold my-4">테스트 관리 (Quiz 목록)</h2>
+		<p class="text-muted">관리할 테스트(Quiz)를 선택하여 문제(QuizQuestion)를 등록/수정/삭제합니다.</p>
+
+		<div th:replace="~{alert :: alertFragment}"></div>
+		<div class="card shadow-sm">
+			<div class="card-body">
+				<table class="table table-hover align-middle">
+					<thead class="table-light">
+						<tr>
+							<th scope="col" style="width: 10%;">ID</th>
+							<th scope="col" style="width: 40%;">테스트명</th>
+							<th scope="col" style="width: 30%;">타입 (quizType)</th>
+							<th scope="col" style="width: 20%;">관리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:if="${#lists.isEmpty(quizzes)}">
+							<td colspan="4" class="text-center p-3 text-muted">관리할 테스트가 없습니다.</td>
+						</tr>
+						<tr th:each="quiz : ${quizzes}">
+							<td th:text="${quiz.quizId}"></td>
+							<td th:text="${quiz.quizTitle}"></td>
+							<td>
+								<span class="badge" th:text="${quiz.quizType}"
+									th:classappend="${quiz.quizType == 'LEVEL_TEST'} ? 'bg-primary' : 'bg-warning text-dark'">
+								</span>
+							</td>
+							<td>
+								<a th:href="@{/instructor/quiz/{quizId}/questions(quizId=${quiz.quizId})}"
+									class="btn btn-sm btn-outline-primary">
+									<i class="bi bi-pencil-square me-1"></i> 문제 관리
+								</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</th:block>
+</body>
+
+</html>

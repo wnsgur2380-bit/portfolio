@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+
+<head>
+	<title>관리자 - 비승인 강사 목록</title>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		
+					<h4 class="mb-3 fw-bold border-bottom pb-2">비승인 강사 목록</h4>
+
+					<form th:action="@{/user/list/unapproved}" method="get" id="searchForm" class="d-flex mb-4" style="height: 58px;">
+						<input type="hidden" id="page" name="page" th:value="${paging.number}">
+						
+						<input type="text" id="search_kw" name="keyword" class="form-control rounded-start"
+							placeholder="이름 또는 아이디 또는 이메일 검색" th:value="${keyword}" style="height: 58px;" />
+						
+						<button type="button" id="btn_search" class="btn btn-primary rounded-end"
+							style="width: 80px; height: 58px;">검색</button>
+					</form>
+
+					<table class="table table-hover text-center align-middle">
+						<thead class="table-light">
+							<tr>
+								<th scope="col" style="width: 10%;">번호</th>
+								<th scope="col" style="width: 15%;">아이디</th>
+								<th scope="col" style="width: 10%;">이름</th>
+								<th scope="col" style="width: 25%;">이메일</th>
+								<th scope="col" style="width: 15%;">구분</th>
+								<th scope="col" style="width: 15%;">가입일</th>
+								<th scope="col" style="width: 10%;">관리</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:if="${paging.isEmpty()}">
+								<td colspan="7" class="text-center py-5">등록된 사용자가 없습니다.</td>
+							</tr>
+							<tr th:each="user, loop : ${paging}">
+								<td th:text="${(paging.number * paging.size) + loop.count}"></td>
+								<td>
+									<a th:href="@{/user/modify/{uno}(uno=${user.uno})}" th:text="${user.userId}" 
+									   class="text-decoration-none fw-bold text-dark"></a>
+								</td>
+								<td th:text="${user.userName}"></td>
+								<td th:text="${user.email}"></td>
+								<td th:if="${!user.approved}" th:text="'강사(비승인)'" style="color: gray;"></td>
+								<td th:text="${#temporals.format(user.userCdate, 'yyyy-MM-dd')}"></td>
+								<td>
+									<form th:action="@{|/user/approve/${user.uno}|}" method="post">
+										<button type="submit" class="btn btn-sm btn-success"
+											onclick="return confirm('해당 강사를 승인하시겠습니까?');">
+											승인
+										</button>
+									</form>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					
+					<div th:replace="~{pagination :: paging(${paging})}"></div>
+		
+		<script layout:fragment="script" type='text/javascript'>
+			
+
+			const btn_search = document.getElementById("btn_search");
+			btn_search.addEventListener('click', function() {
+				document.getElementById('search_kw').value = document.getElementById('search_kw').value;
+				document.getElementById('page').value = 0;
+				document.getElementById('searchForm').submit();
+			});
+		</script>
+	</th:block>
+</body>
+</html>

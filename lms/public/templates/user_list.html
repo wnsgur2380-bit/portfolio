@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+
+<head>
+	<title>관리자 - 사용자 목록</title>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		
+					<h4 class="mb-3 fw-bold border-bottom pb-2">사용자 목록</h4>
+
+					<form th:action="@{/user/list}" method="get" id="searchForm" class="d-flex mb-4" style="height: 58px;">
+						<input type="hidden" id="page" name="page" th:value="${paging.number}">
+						
+						<select class="form-select rounded-0 rounded-start" name="roleSearch"
+							style="width: 150px; height: 58px; border-right: none;">
+							<option value="ALL" th:selected="${roleSearch == 'ALL' or roleSearch == null}">전체</option>
+							<option value="ROLE_LEARNER" th:selected="${roleSearch == 'ROLE_LEARNER'}">수강생</option>
+							<option value="ROLE_INSTRUCTOR" th:selected="${roleSearch == 'ROLE_INSTRUCTOR'}">강사</option>
+							<option value="ROLE_ADMIN" th:selected="${roleSearch == 'ROLE_ADMIN'}">관리자</option>
+						</select>
+
+						<input type="text" id="search_kw" name="keyword" class="form-control rounded-0"
+							placeholder="이름 또는 아이디 또는 이메일 검색" th:value="${keyword}" style="height: 58px;" />
+
+						<button type="button" id="btn_search" class="btn btn-primary rounded-0 rounded-end"
+							style="width: 80px; height: 58px;">
+							검색
+						</button>
+					</form>
+
+					<table class="table table-hover text-center align-middle">
+						<thead class="table-light">
+							<tr>
+								<th scope="col" style="width: 10%;">번호</th>
+								<th scope="col" style="width: 15%;">아이디</th>
+								<th scope="col" style="width: 15%;">이름</th>
+								<th scope="col" style="width: 30%;">이메일</th>
+								<th scope="col" style="width: 15%;">구분</th>
+								<th scope="col" style="width: 15%;">가입일</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:if="${paging.isEmpty()}">
+								<td colspan="6" class="text-center py-5">등록된 사용자가 없습니다.</td>
+							</tr>
+							<tr th:each="user, loop : ${paging}">
+								<td th:text="${(paging.number * paging.size) + loop.count}"></td>
+								<td>
+									<a th:href="@{/user/modify/{uno}(uno=${user.uno})}" th:text="${user.userId}" 
+									   class="text-decoration-none fw-bold text-dark"></a>
+								</td>
+								<td th:text="${user.userName}"></td>
+								<td th:text="${user.email}"></td>
+								<td>
+									<span class="badge rounded-pill"
+										th:classappend="${user.role.name() == 'ROLE_ADMIN' ? 'bg-danger' : (user.role.name() == 'ROLE_INSTRUCTOR' ? 'bg-primary' : 'bg-success')}"
+										th:text="${user.role.name() == 'ROLE_ADMIN' ? '관리자' : (user.role.name() == 'ROLE_INSTRUCTOR' ? '강사' : '수강생')}">
+									</span>
+								</td>
+								<td th:text="${#temporals.format(user.userCdate, 'yyyy-MM-dd')}"></td>
+							</tr>
+						</tbody>
+					</table>
+					
+					<div th:replace="~{pagination :: paging(${paging})}"></div>
+					
+				
+
+		<script layout:fragment="script" type='text/javascript'>
+			
+			const btn_search = document.getElementById("btn_search");
+			btn_search.addEventListener('click', function() {
+				document.getElementById('search_kw').value = document.getElementById('search_kw').value;
+				document.getElementById('page').value = 0; // 검색 시 1페이지부터 조회
+				document.getElementById('searchForm').submit();
+			});
+		</script>
+	</th:block>
+</body>
+</html>

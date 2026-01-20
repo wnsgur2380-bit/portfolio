@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+
+<head>
+	<title th:text="|영상 시청: ${classes.title}|">강의 영상</title>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+
+		<!-- [삭제] 10분 타이머 알림용 모달 전체 삭제 -->
+		<!-- <div id="watch-alert-modal" ...> ... </div> -->
+
+		<div class="container my-4">
+
+			<!-- 페이지 제목 -->
+			<div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+				<div>
+					<h2 class="fw-bold" th:text="${classes.title}">강의 제목</h2>
+					<span class="text-muted">
+						<i class="bi bi-person-fill me-1"></i>
+						<span th:text="${classes?.user?.userName}">강사명</span>
+					</span>
+				</div>
+				<a th:href="@{/classes/{id}(id=${classes.classesId})}" class="btn btn-secondary">
+					<i class="bi bi-arrow-left-short"></i> 강의 상세로 돌아가기
+				</a>
+			</div>
+
+			<!-- 1. 비디오 영상이 있는 경우 -->
+			<div class="mb-4" th:if="${videoUrl != null and !videoUrl.isEmpty()}">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h4 class="fw-bold mb-0">🎬 강의 영상</h4>
+					<div>
+
+						<!-- 질문하기 버튼 추가 -->
+						<a th:if="${isEnrolled}" th:href="@{/question/create(classesId=${classes.classesId})}"
+							class="btn btn-dark ms-2">
+							<i class="bi bi-play-circle-fill"></i> 질문하기
+						</a>
+
+						<!-- 수강 완료 버튼 -->
+						<form th:if="${isEnrolled and !isCompleted}" id="watch-form-video"
+							th:action="@{/enrollment/complete/{id}(id=${classes.classesId})}" method="post"
+							style="display:inline;">
+							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+							<!-- [신규] 시청 시간을 서버로 전송할 hidden input -->
+							<input type="hidden" name="watch_duration" value="0" />
+							<button type="submit" class="btn btn-info ms-2">
+								<i class="bi bi-check-circle-fill"></i> 수강 완료
+							</button>
+						</form>
+						<!-- 경과 시간 표시기 -->
+						<span th:if="${isEnrolled and !isCompleted}" id="watch-timer-video"
+							class="badge bg-secondary align-middle ms-2"
+							style="min-width: 4em; font-variant-numeric: tabular-nums;">00:00</span>
+
+						<!-- 수강 완료됨 배지 -->
+						<span th:if="${isEnrolled and isCompleted}" class="btn btn-outline-success ms-2 disabled">
+							<i class="bi bi-check-lg"></i> 수강 완료됨
+						</span>
+					</div>
+				</div>
+
+				<div class="card shadow-sm">
+					<!-- ... (iframe, video 태그 등 영상 관련 코드는 동일) ... -->
+					<div class="card-body ratio ratio-16x9">
+						<th:block th:with="
+					        isYoutubeWatch=${#strings.contains(videoUrl, 'youtube.com/watch?v=')},
+					        isYoutubeShort=${#strings.contains(videoUrl, 'youtu.be/')},
+					        isYoutubeEmbed=${#strings.contains(videoUrl, 'youtube.com/embed/')},
+					        baseUrl=${isYoutubeEmbed ? videoUrl : (isYoutubeWatch ? #strings.replace(videoUrl, 'watch?v=', 'embed/') : (isYoutubeShort ? #strings.replace(videoUrl, 'youtu.be/', 'https://www.youtube.com/embed/') : videoUrl))},
+					        separator=${#strings.contains(baseUrl, '?') ? '&' : '?'},
+					        finalUrl=${baseUrl + separator + 'autoplay=1&mute=1'}
+					    ">
+							<iframe th:if="${isYoutubeWatch or isYoutubeShort or isYoutubeEmbed}" th:src="${finalUrl}"
+								title="YouTube video player" frameborder="0"
+								allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+								allowfullscreen>
+							</iframe>
+
+							<video th:unless="${isYoutubeWatch or isYoutubeShort or isYoutubeEmbed}"
+								th:src="@{${videoUrl}}" controls width="100%" autoplay muted>
+							</video>
+						</th:block>
+					</div>
+				</div>
+			</div>
+
+			<!-- 2. 비디오 영상이 없는 경우 -->
+			<div class="mb-4" th:if="${videoUrl == null or videoUrl.isEmpty()}">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h4 class="fw-bold mb-0">🎬 강의 영상</h4>
+					<div>
+
+						<!-- 질문하기 버튼 추가 -->
+						<a th:if="${isEnrolled}" th:href="@{/question/create(classesId=${classes.classesId})}"
+							class="btn btn-dark ms-2">
+							<i class="bi bi-play-circle-fill"></i> 질문하기
+						</a>
+
+						<!-- 수강 완료 버튼 (영상 없는 경우) -->
+						<form th:if="${isEnrolled and !isCompleted}" id="watch-form-no-video"
+							th:action="@{/enrollment/complete/{id}(id=${classes.classesId})}" method="post"
+							style="display:inline;">
+							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+							<!-- [신규] 시청 시간을 서버로 전송할 hidden input -->
+							<input type="hidden" name="watch_duration" value="0" />
+							<button type="submit" class="btn btn-info ms-2">
+								<i class="bi bi-check-circle-fill"></i> 수강 완료
+							</button>
+						</form>
+						<!-- 경과 시간 표시기 (영상 없는 경우) -->
+						<span th:if="${isEnrolled and !isCompleted}" id="watch-timer-no-video"
+							class="badge bg-secondary align-middle ms-2"
+							style="min-width: 4em; font-variant-numeric: tabular-nums;">00:00</span>
+
+						<span th:if="${isEnrolled and isCompleted}" class="btn btn-outline-success ms-2 disabled">
+							<i class="bi bi-check-lg"></i> 수강 완료됨
+						</span>
+					</div>
+				</div>
+
+				<div class="card shadow-sm">
+					<!-- ... (영상 없음 placeholder 코드는 동일) ... -->
+					<div class="card-body text-center p-5"
+						style="min-height: 200px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+						<i class="bi bi-camera-video-off display-3 text-muted"></i>
+						<p class="mt-3 text-muted">등록된 강의 영상이 없습니다.</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- 3. 강의 소개 -->
+			<div class="mt-4">
+				<h4 class="fw-bold mb-3">강의 소개</h4>
+				<p th:text="${classes?.classesContent}">
+					강의 소개 내용...
+				</p>
+			</div>
+
+		</div>
+	</th:block>
+
+	<!-- [수정] 10분 타이머 + LocalStorage + Flash 알림 방식으로 스크립트 수정 -->
+	<th:block layout:fragment="script">
+		<script th:inline="javascript">
+
+			// 서버에서 받은 변수들
+			const currentUserId = /*[[${currentUserId}]]*/ 'user_guest';
+			const classesId = /*[[${classes.classesId}]]*/ 0;
+			const csrfToken = /*[[${_csrf.token}]]*/ '';
+			const csrfHeader = /*[[${_csrf.headerName}]]*/ '';
+			const isCompleted = /*[[${isCompleted}]]*/ false; // 이미 완료했는지 여부
+
+			const storageKey = `watchTime_${currentUserId}_${classesId}`;
+			const targetSeconds = 20; // 목표 시간 20초
+
+			// 1. LocalStorage 함수 (동일)
+			function loadSavedTime() {
+				const savedSeconds = localStorage.getItem(storageKey);
+				return savedSeconds ? parseInt(savedSeconds, 10) : 0;
+			}
+			function saveTime(seconds) {
+				localStorage.setItem(storageKey, seconds);
+			}
+			function formatTime(totalSeconds) {
+				const minutes = Math.floor(totalSeconds / 60);
+				const seconds = totalSeconds % 60;
+				return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+			}
+
+			document.addEventListener("DOMContentLoaded", function () {
+
+				// 이미 수강 완료된 상태라면 타이머 로직 실행 안 함 (선택사항)
+				// if (isCompleted) return; 
+
+				const timerDisplayVideo = document.getElementById('watch-timer-video');
+				const timerDisplayNoVideo = document.getElementById('watch-timer-no-video');
+
+				let initialSeconds = loadSavedTime();
+				// 페이지 로드 시점을 기준으로 경과 시간 계산
+				const pageLoadTime = new Date().getTime() - (initialSeconds * 1000);
+
+				// [핵심] 1초마다 실행되는 타이머
+				const timerInterval = setInterval(() => {
+					// 1. 현재까지 본 시간(초) 계산
+					const elapsedSeconds = Math.floor((new Date().getTime() - pageLoadTime) / 1000);
+
+					// 2. UI 업데이트 (시간 표시)
+					const formattedTime = formatTime(elapsedSeconds);
+					if (timerDisplayVideo) timerDisplayVideo.textContent = formattedTime;
+					if (timerDisplayNoVideo) timerDisplayNoVideo.textContent = formattedTime;
+
+					// 3. 20초 달성 시 시각적 표시 (초록색 변경)
+					if (elapsedSeconds >= targetSeconds) {
+						if (timerDisplayVideo) {
+							timerDisplayVideo.classList.remove('bg-secondary');
+							timerDisplayVideo.classList.add('bg-success');
+							timerDisplayVideo.textContent = "완료 (" + formattedTime + ")";
+						}
+						if (timerDisplayNoVideo) {
+							timerDisplayNoVideo.classList.remove('bg-secondary');
+							timerDisplayNoVideo.classList.add('bg-success');
+						}
+					}
+
+					// 4. LocalStorage 저장
+					saveTime(elapsedSeconds);
+
+					// 5. [AJAX] 서버로 진도율 전송 (1초마다)
+					// 서버 부하가 걱정되면 이 부분을 if (elapsedSeconds % 5 === 0) 등으로 감싸서 5초 주기로 변경 가능
+					updateServerProgress(elapsedSeconds);
+
+				}, 1000); // 1000ms = 1초
+			});
+
+			// 서버 업데이트 함수 (fetch API)
+			function updateServerProgress(currentSeconds) {
+
+				const formData = new FormData();
+				formData.append("watched_seconds", currentSeconds);
+
+				fetch(`/enrollment/progress/${classesId}`, {
+					method: "POST",
+					headers: {
+						[csrfHeader]: csrfToken
+					},
+					body: formData
+				})
+					.then(response => {
+						if (!response.ok) {
+							console.error("진도율 통신 오류");
+						}
+					})
+					.catch(error => console.error("진도율 전송 실패", error));
+			}
+
+		</script>
+	</th:block>
+</body>
+
+</html>

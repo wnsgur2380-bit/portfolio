@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${question.title}">질문 상세</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <div class="container my-4">
+        
+        <h2 class="fw-bold my-4" th:text="${question.title}"></h2>
+        
+        <div class="alert alert-light border">
+            <strong>관련 강의: </strong>
+            <a th:href="@{|/classes/${question.classes.classesId}|}" th:text="${question.classes.title}" class="text-decoration-none"></a>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div th:text="${question.quesContent}" style="min-height: 150px; white-space: pre-wrap;"></div>
+                
+                <div class="d-flex justify-content-end border-top pt-2 mt-3">
+                    <span class="text-muted small me-3">
+                        <i class="bi bi-person"></i>
+                        <span th:text="${question.user.userName}"></span>
+                    </span>
+                    <span class="text-muted small">
+                        <i class="bi bi-calendar-event"></i>
+                        <span th:text="${#temporals.format(question.quesDate, 'yyyy-MM-dd HH:mm')}"></span>
+                    </span>
+                </div>
+                
+                <div class="my-3 d-flex justify-content-end" sec:authorize="isAuthenticated()">
+                    <th:block th:if="${question.user != null and (#authentication.getPrincipal().getUsername() == question.user.userId or #authorization.expression('hasRole(''ROLE_ADMIN'')'))}">
+                        <a th:href="@{|/question/modify/${question.boardQuesId}|}" class="btn btn-sm btn-outline-secondary me-2">수정</a>
+                        <a href="javascript:void(0);" th:data-uri="@{|/question/delete/${question.boardQuesId}|}"
+                           class="delete btn btn-sm btn-outline-danger" th:text="삭제"></a>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(answerList)}개의 답변이 있습니다.|"></h5>
+
+        <div class="card my-3" th:each="answer : ${answerList}">
+            <div class="card-body">
+                <div th:text="${answer.answContent}" style="white-space: pre-wrap;"></div>
+                
+                <div class="d-flex justify-content-end border-top pt-2 mt-3">
+                    <span class="text-muted small me-3">
+                        <i class="bi bi-person"></i>
+                        <span th:text="${answer.user.userName}"></span>
+                    </span>
+                    <span class="text-muted small">
+                        <i class="bi bi-calendar-event"></i>
+                        <span th:text="${#temporals.format(answer.answDate, 'yyyy-MM-dd HH:mm')}"></span>
+                    </span>
+                </div>
+                
+                <div class="my-3 d-flex justify-content-end" sec:authorize="isAuthenticated()">
+                    <th:block th:if="${answer.user != null and (#authentication.getPrincipal().getUsername() == answer.user.userId or #authorization.expression('hasRole(''ROLE_ADMIN'')'))}">
+                        <a th:href="@{|/answer/modify/${answer.boardAnswId}|}" class="btn btn-sm btn-outline-secondary me-2">수정</a>
+                        <a href="javascript:void(0);" th:data-uri="@{|/answer/delete/${answer.boardAnswId}|}"
+                           class="delete btn btn-sm btn-outline-danger" th:text="삭제"></a>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm my-4" sec:authorize="isAuthenticated()">
+            <div class="card-body">
+                <h5 class="card-title mb-3">답변 등록</h5>
+                
+                <form th:action="@{|/answer/create/${question.boardQuesId}|}" method="post">
+                    <textarea name="answContent" class="form-control" rows="5" placeholder="답변 내용을 입력하세요..."></textarea>
+                    
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-primary">답변 등록</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+             <a th:href="@{/question/list}" class="btn btn-secondary">목록으로</a>
+        </div>
+
+    </div>
+    
+    <script layout:fragment="script" type='text/javascript'>
+        const delete_elements = document.getElementsByClassName("delete");
+        Array.from(delete_elements).forEach(function(element) {
+            element.addEventListener('click', function() {
+                if(confirm("정말로 삭제하시겠습니까?")) {
+                    location.href = this.dataset.uri;
+                }
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>

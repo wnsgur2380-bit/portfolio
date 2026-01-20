@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+	  <head>
+	      <title>퀴즈별 응시 기록 목록 (관리자용)</title>
+	  </head>
+	  <body>
+	  <h1>퀴즈 응시 기록 목록 (관리자)</h1>
+	  <div th:if="${success}" style="color:green;">[[${success}]]</div>
+	  <div th:if="${error}" style="color:red;">[[${error}]]</div>
+	  <table border="1">
+	      <tr>
+	          <th>응시 ID</th>
+	          <th>사용자 이름</th>
+	          <th>퀴즈 제목</th>
+	          <th>점수</th>
+	          <th>응시 일시</th>
+	          <th>삭제</th>
+	      </tr>
+		  
+	      <tr th:each="attempt : ${attemptList}">
+	          <td th:text="${attempt.attemptId}"></td>
+	          <td th:text="${attempt.user.user_name}"></td>
+	          <td th:text="${attempt.quiz.title}"></td>
+	          <td th:text="${attempt.score}"></td>
+	          <td th:text="${#temporals.format(attempt.attemptedCdate, 'yyyy-MM-dd HH:mm')}"></td>
+	          <td>
+	              <form th:action="@{'/quiz_attempt/' + ${attempt.attemptId} + '/delete'}" method="post">
+	                  <button type="submit">삭제</button>
+	              </form>
+	          </td>
+	      </tr>
+	  </table>
+	  <br>
+	  <a href="/quiz/list">퀴즈 목록으로 돌아가기</a>
+	</body>
+</html>

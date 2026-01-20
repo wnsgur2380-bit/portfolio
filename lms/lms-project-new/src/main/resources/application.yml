@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: lms-project
+  
+  datasource:
+    # MySQL 접속 설정 (아까 만든 testdb와 test 계정)
+    url: jdbc:mysql://localhost:3306/testdb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 1234  # 설정하신 비밀번호로 꼭 확인하세요!
+
+  jpa:
+    hibernate:
+      ddl-auto: update  # 데이터 보존을 위해 update 사용
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect # MySQL 방언 사용
+    show-sql: true
+
+  thymeleaf:
+    cache: false # 개발 중엔 캐시 끄기
+
+# 토스 페이먼츠 설정 유지
+toss:
+  secret-key: test_sk_5OWRapdA8dvaJ2GK9zzBVo1zEqZK
